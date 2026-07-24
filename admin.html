@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>MEXA CARTOON · Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#ffd23f;--gold2:#ff9f1c;--green:#4ade80;--red:#ff5b5b;--neon:#ff2e88}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#160a22;color:#fff;font-family:'Press Start 2P',monospace;font-size:11px;line-height:2;
+  padding:20px;max-width:980px;margin:0 auto}
+h1{color:var(--neon);font-size:17px;margin-bottom:8px}
+h2{font-size:12px;color:var(--gold);margin-bottom:6px}
+.sub{font-size:8px;color:#8f9bd6;line-height:2.1}
+.card{background:#151a3d;border:2px solid rgba(255,255,255,.14);border-radius:8px;padding:18px;margin-bottom:16px}
+label{display:block;font-size:8px;color:#9fb0ff;margin:12px 0 6px}
+input{width:100%;background:#0b0f2a;border:2px solid rgba(255,255,255,.2);color:#fff;
+  font-family:inherit;font-size:10px;padding:10px;border-radius:5px}
+input[type=file]{font-size:8px}
+input[type=checkbox]{width:auto}
+button{font-family:inherit;font-size:9px;cursor:pointer;border:0;border-radius:5px;padding:11px 14px;margin-top:12px;
+  background:linear-gradient(180deg,var(--gold),var(--gold2));color:#2b1600}
+button.danger{background:#c0263f;color:#fff;padding:6px 8px;font-size:8px;margin:0}
+button:disabled{opacity:.5;cursor:not-allowed}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+.row>*{flex:1;min-width:170px}
+.ok{color:var(--green);font-size:8px}
+.err{color:var(--red);font-size:8px}
+.pill{display:inline-block;font-size:8px;padding:5px 9px;border-radius:99px;background:#0b0f2a;border:1px solid #445;margin:0 6px 6px 0}
+.pill.on{border-color:var(--green);color:var(--green)}
+.pill.off{border-color:var(--gold);color:var(--gold)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.tab{background:#1b2250;color:#9fb0ff;font-size:8px;padding:9px 10px;border-radius:5px;cursor:pointer;border:2px solid transparent}
+.tab.on{border-color:var(--gold);color:var(--gold)}
+.tab.has{color:var(--green)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-top:14px}
+.thumb{position:relative;border:2px solid rgba(255,255,255,.2);border-radius:5px;overflow:hidden;background:#000}
+.thumb img{width:100%;height:110px;object-fit:cover;display:block}
+.thumb .n{position:absolute;top:0;left:0;background:#000c;font-size:8px;padding:3px 5px}
+.thumb .x{position:absolute;top:0;right:0}
+.prod{border:2px solid rgba(255,255,255,.15);border-radius:6px;padding:12px;margin-bottom:10px}
+.lvl{display:flex;align-items:center;gap:10px;padding:8px;border-bottom:1px solid #2a3060;flex-wrap:wrap}
+.lvl .num{width:34px;font-size:8px;color:var(--gold);flex:none}
+.lvl input[type=text]{flex:1;min-width:120px;font-size:9px;padding:7px}
+.lvl .st{font-size:7px;width:120px;text-align:right;flex:none;color:#8f9bd6}
+.bar{height:10px;background:#0b0f2a;border:2px solid #445;border-radius:6px;overflow:hidden;margin-top:10px}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold2),var(--gold))}
+.log{background:#0b0f2a;border:2px solid #334;border-radius:6px;padding:10px;font-size:8px;max-height:150px;
+  overflow-y:auto;margin-top:12px;line-height:2}
+a{color:var(--gold)}
+.hidden{display:none!important}
+.demo{border-color:#7a5a00;background:#241c02}
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<div id="login">
+  <h1>★ MEXA CARTOON ★</h1>
+  <p class="sub">Panel de administración · Historieta mexicana</p>
+  <div class="card" style="margin-top:18px">
+    <h2>CONTRASEÑA</h2>
+    <input id="pw" type="password" placeholder="••••••" autocomplete="current-password" autofocus>
+    <label><input type="checkbox" id="remember"> Recordar en este dispositivo</label>
+    <button id="loginBtn">ENTRAR</button>
+    <p id="loginMsg" class="err"></p>
+    <p class="sub" style="margin-top:14px">La contraseña se comprueba en el servidor. Este navegador nunca ve el token de GitHub.</p>
+  </div>
+</div>
+
+<!-- ============ PANEL ============ -->
+<div id="panel" class="hidden">
+  <h1>PANEL · MEXA CARTOON</h1>
+  <p class="sub">
+    <span class="pill" id="modo"></span>
+    <a href="index.html" target="_blank">Ver web ▸</a> · <a href="index.html" target="_blank">Ver tienda (🛒 en la web) ▸</a>
+    · <a href="#" id="logout">Salir</a>
+  </p>
+
+  <div class="card demo hidden" id="demoBox">
+    <h2>MODO VISTA PREVIA</h2>
+    <p class="sub">
+      Estás abriendo el panel sin servidor (archivo local o hosting sin funciones), así que <b>nada se publica</b>.
+      Puedes probarlo todo: subir páginas, borrarlas, bloquear y desbloquear niveles y editar la tienda.<br><br>
+      Para publicar de verdad, abre el panel desde tu dominio de Cloudflare Pages (ver <b>GUIA-DESPLIEGUE.md</b>).
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>NIVELES / TEMPORADAS</h2>
+    <p class="sub">Renombra cada nivel, bloquéalo o déjalo <b>libre</b> (jugable sin terminar el anterior). Los niveles sin páginas salen como PRÓXIMAMENTE.</p>
+    <div id="levels"></div>
+    <button id="saveLevels">PUBLICAR NIVELES</button>
+    <span id="lvlMsg" class="ok"></span>
+  </div>
+
+  <div class="card">
+    <h2>PÁGINAS DEL CÓMIC</h2>
+    <p class="sub">Elige el nivel, suelta las imágenes y se renombran solas (t3-0001.webp, t3-0002.webp…). Se comprimen en tu navegador antes de subir, así que da igual que vengan pesadas de la cámara. Toca ✕ en una miniatura para borrarla.</p>
+    <div class="tabs" id="tabs"></div>
+    <label>Subir páginas (varias a la vez)</label>
+    <input type="file" id="pageFiles" accept="image/*" multiple>
+    <button id="uploadBtn">PUBLICAR PÁGINAS</button>
+    <div class="bar"><i id="prog"></i></div>
+    <div class="log" id="log">Listo.</div>
+    <div class="grid" id="pageGrid"></div>
+  </div>
+
+  <div class="card">
+    <h2>PERSONAJES</h2>
+    <p class="sub">Las postales que se ven en <b>personajes.html</b>. Súbelas con su marco ya incluido (tal cual las diseñas): la web las muestra enteras, no les pinta nada encima. El nombre de aquí no se dibuja en la imagen — sirve para lectores de pantalla y buscadores.</p>
+    <label>Texto del apartado</label>
+    <input id="charIntro">
+    <label>Añadir postales (varias a la vez)</label>
+    <input type="file" id="charFiles" accept="image/*" multiple>
+    <button id="charAdd">SUBIR POSTALES</button>
+    <div class="bar"><i id="charProg"></i></div>
+    <div class="log" id="charLog">Listo.</div>
+    <div class="grid" id="charGrid"></div>
+    <button id="saveChars">PUBLICAR PERSONAJES</button>
+    <span id="charMsg" class="ok"></span>
+  </div>
+
+  <div class="card">
+    <h2>TIENDA · 10 PRODUCTOS</h2>
+    <label>Texto de la tienda</label>
+    <input id="shopIntro">
+    <div id="prods"></div>
+    <button id="saveShop">PUBLICAR TIENDA</button>
+    <span id="shopMsg" class="ok"></span>
+  </div>
+
+  <p class="sub">Cada cambio queda versionado como un commit en GitHub. La web se reconstruye sola en 30-60 segundos.</p>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const MAX_SEASONS = 20;
+let PW = '', LIVE = false, FILES = [], SEASON = 1, LEVELS = {}, PRODUCTS = null;
+const MXNAMES = {1:'Tepito',2:'El Ángel',3:'Iztapalapa',4:'Coapa',5:'Neza',6:'Barrio Bravo'};
+
+/* Postales de personajes: [{name, image}]. El orden del array es el orden en
+   que salen en la web. Viven en R2 (personaje-0001.webp), como las páginas. */
+let CHARS = null;
+
+/* R2: almacén de las páginas nuevas. R2BASE es el dominio público del bucket.
+   Si el bucket no está configurado, el panel sigue funcionando contra el repo. */
+let R2 = false, R2BASE = '';
+
+/* Niveles cuya lista de archivos está COMPLETA en FILES.
+   Clave para no perder datos: ya no se carga el repo entero en cada refresh,
+   solo el nivel que se está viendo. Los niveles no cargados NO se pueden
+   reconstruir desde FILES —está vacío para ellos— así que al publicar
+   temporadas.json hay que conservar su lista anterior tal cual. Sin este Set,
+   abrir el panel y pulsar "publicar niveles" borraría todas las páginas de los
+   19 niveles que no estás mirando. */
+const LOADED = new Set();
+
+/* ---------- compresión en el navegador ----------
+   El cuello de botella real no era la red: eran JPGs de cámara de 3-6 MB
+   subiéndose tal cual, y encima en base64 (+33%). Reencodear a WebP 1600px
+   deja las páginas en ~200-300 KB —se ven igual en pantalla— y multiplica por
+   diez la velocidad de subida y de lectura.
+
+   Se usa createImageBitmap en vez de <img>: decodifica fuera del hilo principal,
+   así el panel no se congela mientras procesa cientos de fotos. */
+const MAX_LADO = 1600;      // lado mayor, en píxeles
+const CALIDAD  = 0.8;       // 0-1, WebP
+
+async function comprimir(file) {
+  // los GIF pueden estar animados: recomprimir los aplanaría a un fotograma
+  if (/gif$/i.test(file.type)) return { blob: file, ext: 'gif' };
+
+  const bmp = await createImageBitmap(file);
+  const escala = Math.min(1, MAX_LADO / Math.max(bmp.width, bmp.height));
+  const w = Math.round(bmp.width * escala), h = Math.round(bmp.height * escala);
+
+  const lienzo = ('OffscreenCanvas' in window)
+    ? new OffscreenCanvas(w, h)
+    : Object.assign(document.createElement('canvas'), { width: w, height: h });
+  lienzo.getContext('2d').drawImage(bmp, 0, 0, w, h);
+  bmp.close();
+
+  const blob = lienzo.convertToBlob
+    ? await lienzo.convertToBlob({ type: 'image/webp', quality: CALIDAD })
+    : await new Promise(res => lienzo.toBlob(res, 'image/webp', CALIDAD));
+
+  // si el navegador no sabe encodear WebP devuelve PNG, que puede pesar más
+  // que el original: en ese caso nos quedamos con el archivo tal cual.
+  if (!blob || (blob.type !== 'image/webp' && blob.size >= file.size)) {
+    return { blob: file, ext: (file.name.split('.').pop() || 'jpg').toLowerCase() };
+  }
+  return { blob, ext: blob.type === 'image/webp' ? 'webp' : 'png' };
+}
+
+/* Ejecuta `tarea` sobre cada elemento con N en vuelo a la vez.
+   Antes se subía con un for + await: una foto, esperar, la siguiente. Con 1000
+   fotos eso son 1000 viajes en fila. Con 6 en paralelo el tiempo baja de horas
+   a minutos, y 6 es un techo prudente para no saturar la conexión del cliente. */
+async function enLotes(items, n, tarea) {
+  let i = 0;
+  const obreros = Array.from({ length: Math.min(n, items.length) }, async () => {
+    while (i < items.length) {
+      const k = i++;
+      await tarea(items[k], k);
+    }
+  });
+  await Promise.all(obreros);
+}
+
+const humano = b => b > 1048576 ? (b / 1048576).toFixed(1) + ' MB' : Math.round(b / 1024) + ' KB';
+
+/* ---------- API serverless (el token vive en el servidor) ---------- */
+async function api(route, data = {}) {
+  const r = await fetch('/api/' + route, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ password: PW, ...data })
+  });
+  const j = await r.json().catch(() => ({ ok: false, error: 'Respuesta no válida' }));
+  if (!j.ok) throw new Error(j.error || 'Error');
+  return j;
+}
+/** Blob/File → base64 sin la cabecera data: */
+const b64 = f => new Promise((res, rej) => {
+  const fr = new FileReader();
+  fr.onload = () => res(String(fr.result).split(',')[1]);
+  fr.onerror = rej; fr.readAsDataURL(f);
+});
+function log(m, c = '') {
+  const l = $('#log');
+  l.innerHTML += `<div class="${c}">${m}</div>`;
+  l.scrollTop = l.scrollHeight;
+}
+
+/* ---------- acceso ---------- */
+$('#loginBtn').onclick = async () => {
+  PW = $('#pw').value;
+  $('#loginMsg').textContent = '';
+  try {
+    const r = await api('login');
+    LIVE = true;
+    R2 = !!r.r2; R2BASE = r.r2Base || '';
+    if ($('#remember').checked) localStorage.setItem('simz.pw', PW);
+    sessionStorage.setItem('simz.pw', PW);
+    $('#modo').textContent = R2 ? '🟢 PUBLICANDO · R2 ACTIVO' : '🟠 PUBLICANDO EN ' + r.repo + ' (sin R2: lento)';
+    $('#modo').className = 'pill on';
+    enter();
+  } catch (e) {
+    if (/no válida|Failed|NetworkError|Unexpected|Method|405|404/i.test(e.message)) {
+      LIVE = false;                                   // sin backend: vista previa
+      $('#modo').textContent = '🟡 VISTA PREVIA (sin servidor)';
+      $('#modo').className = 'pill off';
+      $('#demoBox').classList.remove('hidden');
+      enter();
+    } else {
+      $('#loginMsg').textContent = e.message;
+    }
+  }
+};
+$('#pw').addEventListener('keydown', e => { if (e.key === 'Enter') $('#loginBtn').click(); });
+$('#logout').onclick = e => {
+  e.preventDefault();
+  localStorage.removeItem('simz.pw'); sessionStorage.removeItem('simz.pw'); location.reload();
+};
+async function enter() {
+  $('#login').classList.add('hidden');
+  $('#panel').classList.remove('hidden');
+  await refresh();
+}
+(() => {
+  const saved = sessionStorage.getItem('simz.pw') || localStorage.getItem('simz.pw');
+  if (saved) { $('#pw').value = saved; $('#loginBtn').click(); }
+})();
+
+/* ---------- estado ----------
+   Antes: /api/list traía el repo ENTERO en cada refresh y, además, se sondeaba
+   imagen por imagen (20 niveles × 60 = 1200 peticiones) en vista previa.
+   Ahora se carga solo el nivel que se está viendo, paginado. */
+async function cargarNivel(n) {
+  if (!LIVE || LOADED.has(n)) return;
+  let cursor = null, todo = [];
+  do {
+    const r = await api('list', { prefix: `t${n}-`, cursor });
+    todo = todo.concat(r.files);
+    cursor = r.cursor;
+  } while (cursor);
+  // fuera lo de este nivel y dentro lo recién traído (evita duplicados)
+  const mio = new RegExp(`^t${n}-\\d+\\.`, 'i');
+  FILES = FILES.filter(f => !mio.test(f.name)).concat(todo);
+  LOADED.add(n);
+}
+
+async function refresh() {
+  try { const r = await fetch('temporadas.json?t=' + Date.now()); LEVELS = r.ok ? await r.json() : {}; } catch (e) { LEVELS = {}; }
+  try { const r = await fetch('productos.json?t=' + Date.now()); PRODUCTS = r.ok ? await r.json() : null; } catch (e) { PRODUCTS = null; }
+  try { const r = await fetch('personajes.json?t=' + Date.now()); CHARS = r.ok ? await r.json() : null; } catch (e) { CHARS = null; }
+
+  if (LIVE) {
+    try { await cargarNivel(SEASON); } catch (e) { log('✖ no se pudo listar el nivel ' + SEASON + ': ' + e.message, 'err'); }
+  } else if (!FILES.length) {
+    /* Vista previa: sin servidor no hay /api/list. Se usa lo publicado en
+       temporadas.json y, si no existe, se sondea el disco. El sondeo es caro
+       (una petición por página) pero aquí es aceptable: son pocas, es local, y
+       sin él el panel se vería vacío aunque haya páginas en la carpeta.
+       En producción esto NO se ejecuta nunca: manda /api/list. */
+    for (let n = 1; n <= MAX_SEASONS; n++) {
+      const pub = LEVELS[n] && LEVELS[n].pages;
+      if (Array.isArray(pub) && pub.length) {
+        pub.forEach(name => FILES.push({ name, path: name, url: urlDe(name), sha: '', store: 'git' }));
+      } else {
+        for (let i = 1; i <= 60; i++) {
+          const name = `t${n}-${String(i).padStart(2, '0')}.jpg`;
+          const ok = await new Promise(r => { const im = new Image(); im.onload = () => r(1); im.onerror = () => r(0); im.src = name; });
+          if (!ok) break;                       // se para en el primer hueco
+          FILES.push({ name, path: name, url: name, sha: '', store: 'git' });
+        }
+      }
+      LOADED.add(n);
+    }
+  }
+  renderLevels(); renderTabs(); renderPages(); renderProducts(); renderChars();
+}
+
+/* URL pública de un archivo según DÓNDE vive, deducido del nombre:
+     t1-07.jpg           → 2-3 dígitos → repo, mismo origen (las de siempre)
+     t1-0007.webp        → 4 dígitos   → R2
+     personaje-0007.webp → 4 dígitos   → R2 (postales de personajes)
+   Así las fotos que el cliente ya subió se siguen viendo sin migrar nada.
+   Esta regla tiene que coincidir con `enR2()` de la función del servidor: si
+   divergen, el panel enseñaría miniaturas rotas o borraría en el sitio malo. */
+function urlDe(name) {
+  return /^(t\d{1,2}|personaje)-\d{4}\./i.test(name) && R2BASE
+    ? `${R2BASE}/${encodeURIComponent(name)}`
+    : name;
+}
+const pagesOf = n => FILES
+  .filter(f => new RegExp(`^t${n}-\\d+\\.(jpg|jpeg|png|webp|gif)$`, 'i').test(f.name))
+  .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+
+/* Cuántas páginas tiene un nivel SIN cargarlo: si no está cargado, lo dice
+   temporadas.json. Sirve para pintar las pestañas sin listar 20 niveles. */
+const countOf = n => LOADED.has(n) ? pagesOf(n).length : ((LEVELS[n] && LEVELS[n].pages || []).length);
+
+/* Número de página dentro del nombre: t1-07.jpg → 7 · t1-0007.webp → 7 */
+const idxDe = p => { const m = String(p).match(/-(\d+)\.[a-z]+$/i); return m ? +m[1] : 0; };
+
+/* ---------- niveles ---------- */
+function renderLevels() {
+  const box = $('#levels'); box.innerHTML = '';
+  for (let n = 1; n <= MAX_SEASONS; n++) {
+    const m = LEVELS[n] || {};
+    const c = countOf(n);
+    const estado = m.locked ? '🔒 bloqueado' : (c ? (m.free ? '🟢 libre' : '🟢 jugable') : '⏳ próximamente');
+    const d = document.createElement('div');
+    d.className = 'lvl';
+    d.innerHTML = `
+      <span class="num">T${n}</span>
+      <input type="text" data-t="${n}" value="${(m.title || MXNAMES[n] || 'Nivel ' + n).replace(/"/g, '&quot;')}">
+      <label style="margin:0;font-size:7px"><input type="checkbox" data-lock="${n}" ${m.locked ? 'checked' : ''}> 🔒</label>
+      <label style="margin:0;font-size:7px"><input type="checkbox" data-free="${n}" ${m.free ? 'checked' : ''}> libre</label>
+      <span class="st">${c} pág · ${estado}</span>`;
+    box.appendChild(d);
+  }
+}
+/* Construye temporadas.json: títulos, candados y —lo importante— la LISTA DE
+   PÁGINAS de cada temporada. La web lee esa lista, así que un borrado aquí
+   desaparece de verdad de index.html. Lee los inputs si están pintados; si no
+   (subida/borrado en segundo plano), conserva lo que ya había en LEVELS. */
+function levelsPayload() {
+  const out = {};
+  for (let n = 1; n <= MAX_SEASONS; n++) {
+    const m = LEVELS[n] || {};
+    const t = document.querySelector(`[data-t="${n}"]`);
+    const lk = document.querySelector(`[data-lock="${n}"]`);
+    const fr = document.querySelector(`[data-free="${n}"]`);
+    out[n] = {
+      title: t ? t.value : (m.title || MXNAMES[n] || 'Nivel ' + n),
+      locked: lk ? lk.checked : !!m.locked,
+      free: fr ? fr.checked : !!m.free
+    };
+    /* La lista de páginas SOLO se escribe si sabemos cuál es:
+         · nivel cargado          → se reconstruye desde FILES
+         · nivel con lista previa → se copia tal cual
+         · nivel desconocido      → NO se escribe la clave
+       Publicar pages:[] equivale a borrarle al cliente todas sus páginas.
+       Omitir la clave hace que index.html caiga a su MANIFEST, que es lo
+       correcto: "no sé qué hay aquí" NO es lo mismo que "aquí no hay nada".
+       publishLevels() ya carga los desconocidos antes de llegar aquí; esto es
+       la red de seguridad por si esa carga falló. */
+    if (LOADED.has(n)) out[n].pages = pagesOf(n).map(f => f.name);
+    else if (Array.isArray(m.pages)) out[n].pages = m.pages;
+  }
+  /* El dominio público de R2 viaja DENTRO de temporadas.json.
+     index.html es estático: no ve las variables de entorno de Cloudflare. Antes
+     había que copiar la URL a mano en el HTML —un paso fácil de olvidar que
+     dejaba todas las páginas nuevas en 404 mientras el panel las mostraba
+     perfectas—. Publicándolo aquí, el front lo aprende solo. */
+  if (R2BASE) out._r2 = R2BASE;
+  return out;
+}
+/* Un nivel es "desconocido" si ni está cargado ni tiene lista publicada. No se
+   puede publicar un nivel desconocido: escribiríamos pages:[] y borraríamos sus
+   páginas. Pasa en el PRIMER despliegue, cuando temporadas.json aún no existe:
+   LEVELS={} y todos los niveles que no has abierto son desconocidos. */
+const desconocido = n => !LOADED.has(n) && !Array.isArray(LEVELS[n] && LEVELS[n].pages);
+
+/* Publica temporadas.json. Devuelve true si llegó al repo.
+   Antes de publicar carga los niveles desconocidos: son 1 petición por nivel y
+   solo la primera vez (después ya existe temporadas.json y esto no hace nada).
+   Es barato, y es lo único que impide que la primera publicación destruya el
+   contenido que el cliente ya tenía subido. */
+async function publishLevels() {
+  if (LIVE) {
+    const faltan = [];
+    for (let n = 1; n <= MAX_SEASONS; n++) if (desconocido(n)) faltan.push(n);
+    if (faltan.length) {
+      log(`⏳ comprobando ${faltan.length} nivel(es) antes de publicar (solo la primera vez)…`);
+      for (const n of faltan) await cargarNivel(n);
+    }
+  }
+  const out = levelsPayload();
+  LEVELS = out;
+  if (LIVE) await api('save', { path: 'temporadas.json', data: out });
+  return LIVE;
+}
+$('#saveLevels').onclick = async () => {
+  $('#lvlMsg').textContent = 'Publicando…';
+  try {
+    const live = await publishLevels();
+    $('#lvlMsg').textContent = live ? '✔ publicado · visible en ~1 min' : '✔ guardado (vista previa)';
+  } catch (e) { $('#lvlMsg').textContent = '✖ ' + e.message; }
+  renderLevels();
+};
+
+/* ---------- páginas ---------- */
+function renderTabs() {
+  const t = $('#tabs'); t.innerHTML = '';
+  for (let n = 1; n <= MAX_SEASONS; n++) {
+    const c = countOf(n);
+    const b = document.createElement('div');
+    b.className = 'tab' + (n === SEASON ? ' on' : '') + (c ? ' has' : '');
+    b.textContent = 'T' + n + (c ? ` (${c})` : '');
+    // el nivel se lista al abrir su pestaña, no todos al arrancar
+    b.onclick = async () => {
+      SEASON = n; visibles = POR_TANDA; renderTabs(); renderPages();
+      try { await cargarNivel(n); } catch (e) { log('✖ ' + e.message, 'err'); }
+      renderTabs(); renderPages(); renderLevels();
+    };
+    t.appendChild(b);
+  }
+}
+/* Cuántas miniaturas se pintan de golpe. Pintar 1000 <img> a la vez son 1000
+   nodos y 1000 descargas: el panel se arrastraba solo al abrir un nivel. */
+const POR_TANDA = 120;
+let visibles = POR_TANDA;
+
+function renderPages() {
+  const g = $('#pageGrid'); g.innerHTML = '';
+  const todas = pagesOf(SEASON);
+  const lote = todas.slice(0, visibles);
+
+  // fragmento: un solo reflow en vez de uno por miniatura
+  const frag = document.createDocumentFragment();
+  lote.forEach((f, i) => {
+    const d = document.createElement('div');
+    d.className = 'thumb';
+    // width/height evitan que el grid salte al cargar cada imagen
+    d.innerHTML = `<img src="${f.url || urlDe(f.name)}" loading="lazy" decoding="async" width="150" height="200">
+                   <span class="n">${i + 1}</span><button class="danger x">✕</button>`;
+    d.querySelector('.x').onclick = async () => {
+      if (!confirm('¿Borrar ' + f.name + '?')) return;
+      try {
+        if (LIVE) await api('delete', { paths: [f.path], sha: f.sha });
+        FILES = FILES.filter(x => x.name !== f.name);
+        // sin esto la web seguiría mostrando la página borrada
+        await publishLevels();
+        log('🗑 ' + f.name + ' borrado', 'ok');
+        renderTabs(); renderPages(); renderLevels();
+      } catch (e) { log('✖ ' + e.message, 'err'); }
+    };
+    frag.appendChild(d);
+  });
+  g.appendChild(frag);
+
+  if (todas.length > visibles) {
+    const mas = document.createElement('button');
+    mas.textContent = `VER MÁS (${visibles} de ${todas.length})`;
+    mas.style.gridColumn = '1/-1';
+    mas.onclick = () => { visibles += POR_TANDA; renderPages(); };
+    g.appendChild(mas);
+  }
+}
+$('#uploadBtn').onclick = async () => {
+  const files = [...$('#pageFiles').files];
+  if (!files.length) { log('Elige imágenes primero.', 'err'); return; }
+  $('#uploadBtn').disabled = true;
+  $('#prog').style.width = '0%';
+
+  // el nivel tiene que estar cargado para saber por qué número seguir
+  try { await cargarNivel(SEASON); } catch (e) { log('✖ ' + e.message, 'err'); }
+
+  /* Numerar a partir del índice más alto existente, NO de la cantidad: si se
+     borró una página intermedia, contar sobrescribiría la última.
+     4 dígitos (t3-0001): el esquema viejo de 2 se rompía a partir de la página
+     99 —justo lo que pasa con mil fotos por nivel—. Las viejas de 2 dígitos se
+     respetan tal cual; el máximo se calcula sobre ambas, así que las nuevas
+     continúan la numeración sin pisar nada. */
+  let next = pagesOf(SEASON).reduce((mx, f) => Math.max(mx, idxDe(f.name)), 0) + 1;
+  const nombres = files.map(() => `t${SEASON}-${String(next++).padStart(4, '0')}`);
+
+  let hechos = 0, entra = 0, sale = 0, fallos = 0;
+  const t0 = Date.now();
+  log(`⬆ ${files.length} archivo(s) · comprimiendo a WebP ${MAX_LADO}px y subiendo de 6 en 6…`);
+
+  // 6 en vuelo a la vez. Cada tarea comprime y sube su foto; el trabajo pesado
+  // (encodear) se solapa con la espera de red en vez de ir en fila.
+  await enLotes(files, 6, async (f, i) => {
+    try {
+      const { blob, ext } = await comprimir(f);
+      const name = `${nombres[i]}.${ext}`;
+      entra += f.size; sale += blob.size;
+      if (LIVE) await api('upload', { path: name, content: await b64(blob), message: 'Añadir ' + name });
+      /* url real, no URL.createObjectURL(blob): un blob URL retiene el archivo
+         en memoria hasta revocarlo, y con 1000 subidas eran ~250 MB colgados de
+         la pestaña. La imagen ya está subida, así que su URL definitiva sirve.
+         En vista previa no hay subida, así que ahí sí hace falta el blob. */
+      FILES.push({
+        name, path: name, sha: '', store: R2 ? 'r2' : 'git',
+        url: LIVE ? urlDe(name) : URL.createObjectURL(blob)
+      });
+    } catch (e) {
+      fallos++;
+      log(`✖ ${f.name}: ${e.message}`, 'err');
+    }
+    hechos++;
+    $('#prog').style.width = Math.round(hechos / files.length * 100) + '%';
+    // no una línea por foto: con 1000 el log se vuelve ilegible y pesado
+    if (hechos % 25 === 0 || hechos === files.length) log(`   ${hechos}/${files.length}`);
+  });
+
+  $('#pageFiles').value = '';
+  try { await publishLevels(); } catch (e) { log('✖ índice: ' + e.message, 'err'); }
+
+  const seg = Math.round((Date.now() - t0) / 1000);
+  const ahorro = entra ? Math.round((1 - sale / entra) * 100) : 0;
+  log(`📉 ${humano(entra)} → ${humano(sale)} (${ahorro}% menos) en ${seg}s`, 'ok');
+  if (fallos) log(`⚠ ${fallos} archivo(s) fallaron; el resto sí se subió.`, 'err');
+  log(!LIVE ? 'Listo (vista previa: no se subió nada).'
+     : R2 ? 'Listo · las páginas ya están online (R2 no espera rebuild).'
+          : 'Listo · la web se actualiza en ~1 minuto.', 'ok');
+  $('#uploadBtn').disabled = false;
+  renderTabs(); renderPages(); renderLevels();
+};
+
+/* ---------- personajes ----------
+   Las postales llegan ya diseñadas (marco, nombre y año quemados en la imagen),
+   así que aquí no se compone nada: se sube el archivo tal cual y la web lo
+   muestra entero. El campo "nombre" es solo el alt de la imagen.
+
+   Viven en R2 igual que las páginas: subir no dispara rebuild, y borrar libera
+   de verdad. El JSON con el orden sí va a Git, que es donde queremos historial. */
+const INTRO_CHARS = 'Los rostros que llegan al Mundo Simz en las próximas temporadas.';
+const charLog = (m, c) => { const l = $('#charLog'); l.textContent = m; l.className = 'log ' + (c || ''); };
+
+/* Devuelve SIEMPRE el mismo objeto y lo deja fijado en CHARS. Si devolviera uno
+   nuevo cada vez, escribir un nombre o reordenar mutaría una copia temporal y
+   el cambio se perdería al publicar. */
+function charsData() {
+  if (!CHARS || !Array.isArray(CHARS.items)) CHARS = { intro: INTRO_CHARS, items: [] };
+  return CHARS;
+}
+
+function renderChars() {
+  const data = charsData();
+  $('#charIntro').value = data.intro || INTRO_CHARS;
+  const g = $('#charGrid'); g.innerHTML = '';
+  const frag = document.createDocumentFragment();
+
+  data.items.forEach((it, i) => {
+    const d = document.createElement('div');
+    d.className = 'thumb';
+    d.innerHTML = `
+      <img src="${it._preview || urlDe(it.image)}" alt="" loading="lazy">
+      <span class="n">${i + 1}</span>
+      <button class="x" data-del="${i}" title="Borrar">✕</button>
+      <input data-name="${i}" value="${(it.name || '').replace(/"/g, '&quot;')}"
+             placeholder="Nombre" style="font-size:8px;padding:4px">
+      <div style="display:flex;gap:2px">
+        <button data-mv="${i}" data-dir="-1" style="flex:1;font-size:8px;padding:3px">◀</button>
+        <button data-mv="${i}" data-dir="1"  style="flex:1;font-size:8px;padding:3px">▶</button>
+      </div>`;
+    frag.appendChild(d);
+  });
+  g.appendChild(frag);
+
+  // el nombre se guarda en memoria al escribir: así reordenar o borrar no se
+  // lleva por delante lo que el cliente acaba de teclear.
+  g.querySelectorAll('[data-name]').forEach(inp => {
+    inp.oninput = () => { charsData().items[+inp.dataset.name].name = inp.value; };
+  });
+  g.querySelectorAll('[data-del]').forEach(b => {
+    b.onclick = () => borrarChar(+b.dataset.del);
+  });
+  g.querySelectorAll('[data-mv]').forEach(b => {
+    b.onclick = () => moverChar(+b.dataset.mv, +b.dataset.dir);
+  });
+}
+
+function moverChar(i, dir) {
+  const items = charsData().items;
+  const j = i + dir;
+  if (j < 0 || j >= items.length) return;
+  [items[i], items[j]] = [items[j], items[i]];
+  CHARS = { ...charsData(), items };
+  renderChars();
+}
+
+async function borrarChar(i) {
+  const items = charsData().items;
+  const it = items[i];
+  if (!it) return;
+  if (!confirm(`¿Borrar la postal de "${it.name || 'sin nombre'}"? No se puede deshacer.`)) return;
+  try {
+    // solo se borra del bucket lo que de verdad está publicado: una postal
+    // recién añadida en vista previa no existe en R2 y borrarla daría error.
+    if (LIVE && it.image) await api('delete', { paths: [it.image] });
+    items.splice(i, 1);
+    CHARS = { ...charsData(), items };
+    renderChars();
+    charLog(LIVE ? '🗑 Borrada · pulsa PUBLICAR PERSONAJES para actualizar la web.' : '🗑 Borrada (vista previa).', 'ok');
+  } catch (e) { charLog('✖ ' + e.message, 'err'); }
+}
+
+$('#charAdd').onclick = async () => {
+  const files = [...$('#charFiles').files];
+  if (!files.length) { charLog('Elige imágenes primero.', 'err'); return; }
+  if (LIVE && !R2) { charLog('✖ Falta configurar R2. Ver GUIA-DESPLIEGUE.md, pasos 4 y 5.', 'err'); return; }
+
+  $('#charAdd').disabled = true;
+  $('#charProg').style.width = '0%';
+  const data = charsData();
+
+  /* Numerar desde el índice más alto existente, no desde la cantidad: si se
+     borró una postal intermedia, contar sobrescribiría la última. */
+  let next = data.items.reduce((mx, it) => Math.max(mx, idxDe(it.image)), 0) + 1;
+  const nombres = files.map(() => `personaje-${String(next++).padStart(4, '0')}`);
+
+  let hechos = 0, fallos = 0;
+  charLog(`⬆ ${files.length} postal(es) · comprimiendo y subiendo…`);
+
+  await enLotes(files, 4, async (f, i) => {
+    try {
+      const { blob, ext } = await comprimir(f);
+      const name = `${nombres[i]}.${ext}`;
+      if (LIVE) await api('upload', { path: name, content: await b64(blob), message: 'Añadir ' + name });
+      data.items.push({
+        // nombre por defecto: el del archivo sin extensión, para no dejarlo vacío
+        name: f.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').trim(),
+        image: name,
+        ...(LIVE ? {} : { _preview: URL.createObjectURL(blob) })
+      });
+    } catch (e) { fallos++; charLog(`✖ ${f.name}: ${e.message}`, 'err'); }
+    hechos++;
+    $('#charProg').style.width = Math.round(hechos / files.length * 100) + '%';
+  });
+
+  $('#charFiles').value = '';
+  CHARS = data;
+  renderChars();
+  if (fallos) charLog(`⚠ ${fallos} postal(es) fallaron; el resto sí se subió.`, 'err');
+  else charLog(LIVE ? '✔ Subidas · revisa los nombres y pulsa PUBLICAR PERSONAJES.' : '✔ Listo (vista previa: no se subió nada).', 'ok');
+  $('#charAdd').disabled = false;
+};
+
+$('#saveChars').onclick = async () => {
+  $('#saveChars').disabled = true; $('#charMsg').textContent = 'Publicando…';
+  try {
+    const data = charsData();
+    const out = {
+      intro: $('#charIntro').value || INTRO_CHARS,
+      // _preview es un blob URL de esta pestaña: no tiene sentido fuera de ella
+      items: data.items.map(it => ({ name: it.name || '', image: it.image }))
+    };
+    /* El dominio público de R2 viaja DENTRO del JSON, igual que en
+       temporadas.json: se configura en un solo sitio (R2_PUBLIC_URL) y la web
+       lo aprende de aquí. Teniéndolo en dos lugares, uno se queda viejo y la
+       web sirve 404 mientras el panel se ve perfecto. */
+    if (R2BASE) out._r2 = R2BASE;
+    if (LIVE) await api('save', { path: 'personajes.json', data: out });
+    CHARS = { ...out, items: data.items };
+    $('#charMsg').textContent = LIVE ? '✔ personajes publicados · visible en ~1 min' : '✔ guardado (vista previa)';
+  } catch (e) { $('#charMsg').textContent = '✖ ' + e.message; }
+  $('#saveChars').disabled = false;
+};
+
+/* ---------- tienda ---------- */
+function renderProducts() {
+  const data = PRODUCTS || { intro: 'Coleccionables oficiales del Mundo Simz. Los artículos exclusivos se desbloquearán con las próximas temporadas.', items: [] };
+  const list = (data.items || []).slice(0, 10);
+  while (list.length < 10) list.push({ name: 'Próximamente', price: '', image: '', locked: true, tag: '' });
+  $('#shopIntro').value = data.intro;
+  const box = $('#prods'); box.innerHTML = '';
+  list.forEach((it, i) => {
+    const d = document.createElement('div');
+    d.className = 'prod';
+    d.dataset.image = it.image || '';
+    d.innerHTML = `
+      <p class="sub">PRODUCTO ${i + 1}</p>
+      <div class="row">
+        <div><label>Nombre</label><input data-k="name" value="${(it.name || '').replace(/"/g, '&quot;')}"></div>
+        <div><label>Precio</label><input data-k="price" value="${(it.price || '').replace(/"/g, '&quot;')}"></div>
+        <div><label>Etiqueta</label><input data-k="tag" value="${(it.tag || '').replace(/"/g, '&quot;')}"></div>
+      </div>
+      <div class="row">
+        <div><label>Foto del producto</label><input type="file" data-k="file" accept="image/*"></div>
+        <div><label style="margin-top:26px"><input type="checkbox" data-k="locked" ${it.locked !== false ? 'checked' : ''}> Mostrar como PRÓXIMAMENTE</label></div>
+      </div>`;
+    box.appendChild(d);
+  });
+}
+$('#saveShop').onclick = async () => {
+  $('#saveShop').disabled = true; $('#shopMsg').textContent = 'Publicando…';
+  try {
+    const items = [];
+    const cards = [...document.querySelectorAll('.prod')];
+    for (let i = 0; i < cards.length; i++) {
+      const c = cards[i], get = k => c.querySelector(`[data-k="${k}"]`);
+      let image = c.dataset.image;
+      const f = get('file').files[0];
+      if (f) {
+        // las fotos de producto siguen en el repo (son 10 y cambian poco), pero
+        // se comprimen igual: no hay motivo para versionar un JPG de 5 MB.
+        const { blob, ext } = await comprimir(f);
+        const name = `producto-${i + 1}.${ext}`;
+        if (LIVE) await api('upload', { path: name, content: await b64(blob), message: 'Foto ' + name });
+        image = name;
+      }
+      items.push({
+        id: 'p' + (i + 1), name: get('name').value || 'Próximamente',
+        price: get('price').value, tag: get('tag').value, image,
+        locked: get('locked').checked
+      });
+    }
+    const data = { intro: $('#shopIntro').value, items };
+    if (LIVE) await api('save', { path: 'productos.json', data });
+    PRODUCTS = data;
+    $('#shopMsg').textContent = LIVE ? '✔ tienda publicada · visible en ~1 min' : '✔ guardado (vista previa)';
+  } catch (e) { $('#shopMsg').textContent = '✖ ' + e.message; }
+  $('#saveShop').disabled = false;
+};
+</script>
+</body>
+</html>

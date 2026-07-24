@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0b0f2a">
+<title>SÚPER HÉROES CDMX — El Barrio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Bangers&display=swap" rel="stylesheet">
+<style>
+  :root{--pix:'Press Start 2P',monospace;--gold:#ffd23f;--gold2:#ff9f1c;--rojo:#e0342a;--verde:#1f9e4d;--neon:#ff2e88;}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none;}
+  html,body{height:100%;overflow:hidden;background:#05060f;color:#fff;font-family:var(--pix);}
+
+  /* ---------- pantalla de selección ---------- */
+  #select{position:fixed;inset:0;z-index:30;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:18px;background:radial-gradient(circle at 50% 6%,#2a0f3d,#0b0616 60%,#05060f);}
+  #select h1{font-family:'Bangers',cursive;font-size:clamp(20px,6vw,40px);letter-spacing:1px;
+    color:#fff;text-shadow:0 0 10px var(--neon),0 0 20px var(--neon);margin-bottom:4px;}
+  #select .s{font-size:8px;color:#3fd0ff;text-shadow:0 0 6px #3fd0ff;margin-bottom:22px;line-height:1.7;}
+  .picks{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:24px;}
+  .pick{width:150px;background:#1c0f2b;border:3px solid #3a1e57;border-radius:16px;padding:10px;cursor:pointer;transition:.15s;}
+  .pick img{height:150px;display:block;margin:0 auto 8px;filter:drop-shadow(3px 4px 0 rgba(0,0,0,.4));image-rendering:auto;}
+  .pick .n{font-size:8px;line-height:1.5;color:#cbb6e6;}
+  .pick.on{border-color:var(--neon);box-shadow:0 0 18px rgba(255,46,136,.6);background:#2a1240;transform:translateY(-4px);}
+  .pick.on .n{color:#fff;}
+  .startbtn{font-family:'Bangers',cursive;font-size:26px;color:#3a0016;cursor:pointer;
+    background:radial-gradient(circle at 40% 30%,#ffe08a,var(--gold) 55%,#b8890a);border:none;border-radius:44px;
+    padding:12px 34px;box-shadow:0 8px 0 #7a5a06,0 10px 18px rgba(0,0,0,.5);}
+  .startbtn:active{transform:translateY(5px);box-shadow:0 3px 0 #7a5a06;}
+  @media(max-width:560px){.pick{width:40vw;}.pick img{height:34vw;}}
+
+  /* ---------- mundo ---------- */
+  #game{position:fixed;inset:0;background:#0b0f2a;display:none;}
+  #game.on{display:block;}
+  #world{display:block;width:100%;height:100%;image-rendering:pixelated;cursor:pointer;touch-action:none;}
+
+  #hud{position:fixed;top:0;left:0;right:0;padding:12px;display:flex;justify-content:space-between;
+    align-items:flex-start;pointer-events:none;z-index:10;gap:8px;}
+  #hud>*{display:flex;gap:8px;align-items:center;pointer-events:auto;flex-wrap:wrap;}
+  .badge{font-size:10px;background:rgba(10,14,42,.85);border:2px solid rgba(255,255,255,.3);
+    border-radius:6px;padding:9px 12px;letter-spacing:1px;backdrop-filter:blur(4px);}
+  .badge.small{font-size:8px;color:var(--gold);border-color:rgba(255,210,63,.4);}
+  .iconbtn{font-family:var(--pix);font-size:12px;background:rgba(10,14,42,.85);color:#fff;border:2px solid rgba(255,255,255,.3);
+    border-radius:6px;padding:8px 10px;cursor:pointer;text-decoration:none;display:inline-flex;}
+
+  .tooltip{position:fixed;z-index:12;pointer-events:none;background:rgba(10,14,42,.95);
+    border:2px solid var(--gold);border-radius:6px;padding:8px 10px;font-size:8px;line-height:1.7;
+    transform:translate(-50%,-130%);white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.6);}
+  .tooltip b{color:var(--gold);} .tooltip .lock{color:var(--rojo);}
+
+  #touchpad{position:fixed;bottom:16px;left:0;right:0;display:none;justify-content:center;gap:16px;z-index:11;}
+  .dpad{width:66px;height:66px;border-radius:50%;font-family:var(--pix);font-size:16px;
+    background:rgba(10,14,42,.8);color:#fff;border:3px solid rgba(255,255,255,.35);backdrop-filter:blur(6px);}
+  .dpad:active{background:var(--gold);color:#2b1600;}
+  @media (hover:none) and (pointer:coarse){#touchpad{display:flex;}}
+
+  /* ---------- contador de visitas (ojito) ---------- */
+  #visitas{position:fixed;left:12px;top:64px;z-index:11;pointer-events:none;
+    display:flex;flex-direction:column;align-items:center;gap:4px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.5));}
+  #visitas .eye{width:62px;height:36px;border-radius:50%;background:#fff;position:relative;
+    border:3px solid #0b0f2a;box-shadow:inset 0 -3px 0 rgba(0,0,0,.12);}
+  #visitas .eye::before{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#3fd0ff 0 40%,#123a52 42%,#061826 100%);}
+  #visitas .eye::after{content:"";position:absolute;left:57%;top:34%;width:5px;height:5px;border-radius:50%;background:#fff;}
+  #visitas .eye.blink{height:6px;background:#0b0f2a;}
+  #visitas .eye.blink::before,#visitas .eye.blink::after{display:none;}
+  #visitas .bub{background:#fff;color:#123;border:3px solid #0b0f2a;border-radius:10px;
+    padding:5px 9px 6px;text-align:center;line-height:1.35;position:relative;max-width:150px;}
+  #visitas .bub::before{content:"";position:absolute;left:50%;top:-9px;transform:translateX(-50%);
+    border:6px solid transparent;border-bottom-color:#0b0f2a;}
+  #visitas .bub .lbl{font-size:7px;color:#3a3f5a;letter-spacing:.5px;display:block;}
+  #visitas .bub .num{font-size:15px;color:#c47f0a;margin-top:2px;display:block;}
+  @media (max-width:520px){#visitas .eye{width:52px;height:30px;}#visitas .bub{max-width:130px;}#visitas .bub .num{font-size:13px;}}
+
+  /* ---------- visor de cómic ---------- */
+  .overlay{position:fixed;inset:0;z-index:60;display:none;flex-direction:column;align-items:center;justify-content:center;
+    background:rgba(4,3,12,.95);text-align:center;padding:16px;}
+  .overlay.on{display:flex;}
+  #comic{background:rgba(0,0,0,.97);}
+  .comicstage{flex:1;display:flex;align-items:center;justify-content:center;width:100%;overflow:hidden;}
+  .comicstage img{max-width:96%;max-height:78vh;border:3px solid #222;border-radius:6px;box-shadow:0 8px 40px rgba(0,0,0,.7);image-rendering:auto;}
+  .comicnav{display:flex;align-items:center;justify-content:center;gap:12px;padding:12px;flex-wrap:wrap;}
+  .comicnav .pg{font-size:9px;color:#cbb6e6;min-width:64px;}
+  .obtn{font-family:'Bangers',cursive;font-size:20px;color:#111;background:#3fd0ff;border:3px solid #fff;border-radius:40px;
+    padding:9px 20px;cursor:pointer;box-shadow:3px 4px 0 rgba(0,0,0,.4);}
+  .obtn.pink{background:var(--neon);color:#fff;} .obtn:active{transform:translateY(3px);}
+
+  /* banner de nivel al entrar */
+  #banner{position:fixed;top:24%;left:50%;transform:translate(-50%,-16px);z-index:45;text-align:center;
+    background:linear-gradient(#ff2e88,#a3164f);border:4px solid #fff;border-radius:16px;padding:12px 22px;
+    box-shadow:0 8px 0 rgba(0,0,0,.4);opacity:0;transition:.35s;pointer-events:none;}
+  #banner.show{opacity:1;transform:translate(-50%,0);}
+  #banner .l{font-size:9px;color:var(--gold);text-shadow:0 0 6px var(--gold);}
+  #banner .b{font-family:'Bangers',cursive;font-size:30px;margin-top:6px;}
+
+  .ziv-credito{position:fixed;bottom:6px;right:10px;z-index:6;font-family:var(--pix);font-size:8px;letter-spacing:.5px;
+    color:#fff;opacity:.3;text-decoration:none;background:rgba(0,0,0,.4);padding:4px 8px;border-radius:5px;}
+  @media(max-width:640px){.ziv-credito{font-size:7px;padding:3px 6px;bottom:4px;right:6px;}}
+
+  /* ---------- pantalla de TÍTULO (boot) estilo Mundo Simz ---------- */
+  #boot{position:fixed;inset:0;z-index:40;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:22px;overflow:hidden;
+    background:radial-gradient(circle at 50% 12%,#123a52,#0b0616 58%,#05060f);}
+  #boot .stars{position:absolute;inset:0;pointer-events:none;opacity:.5;
+    background:radial-gradient(1px 1px at 20% 30%,#fff,transparent),radial-gradient(1px 1px at 70% 20%,#bfe9ff,transparent),
+    radial-gradient(1px 1px at 40% 70%,#fff,transparent),radial-gradient(1px 1px at 85% 60%,#ffd23f,transparent),
+    radial-gradient(1px 1px at 60% 85%,#fff,transparent),radial-gradient(1px 1px at 10% 80%,#3fd0ff,transparent);}
+  /* ícono MC: M verde + C roja, como el avatar de Instagram */
+  .mc-badge{font-family:'Bangers',cursive;font-size:clamp(64px,20vw,150px);line-height:.8;letter-spacing:-2px;
+    filter:drop-shadow(0 6px 0 rgba(0,0,0,.4));animation:mcbob 3s ease-in-out infinite;}
+  .mc-badge .m{color:#1f9e4d;text-shadow:0 0 18px rgba(31,158,77,.7),0 5px 0 #0c5a2b;}
+  .mc-badge .c{color:#e0342a;text-shadow:0 0 18px rgba(224,52,42,.7),0 5px 0 #7a140f;margin-left:-.06em;}
+  @keyframes mcbob{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-8px) rotate(1deg)}}
+  #boot .title{font-family:'Bangers',cursive;font-size:clamp(30px,9vw,72px);letter-spacing:3px;margin-top:6px;color:#fff;}
+  #boot .title .a{color:#1f9e4d} #boot .title .b{color:#fff} #boot .title .d{color:#e0342a}
+  #boot .title{text-shadow:0 0 22px rgba(255,255,255,.25),0 5px 0 #05060f;}
+  #boot .tag{font-size:9px;color:#3fd0ff;text-shadow:0 0 8px #3fd0ff;margin-top:12px;line-height:2;max-width:520px;}
+  #boot .pixbtn{font-family:'Bangers',cursive;font-size:26px;color:#3a0016;cursor:pointer;margin-top:26px;
+    background:radial-gradient(circle at 40% 30%,#ffe08a,var(--gold) 55%,#b8890a);border:none;border-radius:44px;
+    padding:12px 34px;box-shadow:0 8px 0 #7a5a06,0 10px 18px rgba(0,0,0,.5);}
+  #boot .pixbtn:active{transform:translateY(5px);box-shadow:0 3px 0 #7a5a06;}
+  #boot .hint{font-size:8px;color:#8f7fb8;margin-top:16px;line-height:1.9;}
+  #boot .scan{position:absolute;inset:0;pointer-events:none;opacity:.35;
+    background:repeating-linear-gradient(0deg,rgba(0,0,0,.35) 0 2px,transparent 2px 5px);}
+  #boot.hidden{display:none;}
+
+  /* ---------- TIENDA (overlay) ---------- */
+  #shop.overlay{background:radial-gradient(circle at 50% 0%,rgba(255,46,136,.22),transparent 55%),
+    repeating-linear-gradient(90deg,#1b1030 0 40px,#170e2a 40px 80px);}
+  .shop-wrap{width:100%;max-width:1000px;height:100%;display:flex;flex-direction:column;padding:14px 12px;}
+  .shop-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
+  .shop-title{font-family:'Bangers',cursive;font-size:clamp(26px,7vw,52px);letter-spacing:2px;line-height:1;
+    text-shadow:0 0 12px var(--neon),0 0 30px var(--neon),0 4px 0 #4a0b33;}
+  .shop-title .g{color:var(--verde);text-shadow:0 0 12px var(--verde),0 4px 0 #0c5a2b;}
+  .shop-intro{font-size:8px;color:#d5b8ff;line-height:1.9;margin-bottom:10px;text-align:center;padding:0 6px;}
+  .shelfbox{flex:1;overflow-y:auto;border:4px solid #6b3b1d;border-radius:10px;padding:14px;
+    background:linear-gradient(180deg,#3a2414,#241207);box-shadow:inset 0 0 60px rgba(0,0,0,.7);}
+  .shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;}
+  .scard{position:relative;aspect-ratio:3/4;border-radius:6px;overflow:hidden;cursor:pointer;
+    background:linear-gradient(180deg,#2b2050,#150e2b);border:3px solid #ffd23f55;display:flex;align-items:center;justify-content:center;transition:.2s;}
+  .scard:hover{transform:translateY(-5px) rotate(-1deg);border-color:var(--gold);box-shadow:0 12px 26px rgba(0,0,0,.6);}
+  .scard img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+  .scard.locked img{filter:blur(9px) brightness(.45);}
+  .scard .sil{width:56%;height:56%;background:#000;opacity:.7;
+    clip-path:polygon(50% 0%,68% 22%,100% 30%,78% 55%,86% 100%,50% 80%,14% 100%,22% 55%,0% 30%,32% 22%);}
+  .scard .lock{position:absolute;font-size:26px;filter:drop-shadow(0 0 10px #000);}
+  .scard .label{position:absolute;bottom:0;left:0;right:0;padding:9px;text-align:center;font-size:7px;letter-spacing:1px;
+    color:var(--gold);background:linear-gradient(180deg,transparent,rgba(0,0,0,.92));line-height:1.8;}
+  .scard .label .price{display:block;color:#fff;margin-top:5px;font-size:8px;}
+  .scard .tag{position:absolute;top:7px;left:7px;font-size:6px;padding:4px 6px;border-radius:4px;
+    background:#0b0f2acc;border:1px solid var(--gold);color:var(--gold);}
+  .shop-neon{text-align:center;margin-top:10px;font-size:8px;letter-spacing:2px;color:#ff6ec7;
+    text-shadow:0 0 10px var(--neon);animation:neon 2.6s infinite;}
+  @keyframes neon{0%,100%{opacity:1}50%{opacity:.45}}
+  @media(max-width:640px){.shop-grid{grid-template-columns:repeat(2,1fr);gap:10px;}.shelfbox{padding:10px;}}
+</style>
+</head>
+<body>
+
+<!-- ============ PANTALLA DE TÍTULO (BOOT) ============ -->
+<div id="boot">
+  <div class="stars"></div>
+  <div class="mc-badge"><span class="m">M</span><span class="c">C</span></div>
+  <h1 class="title"><span class="a">MEXA</span> <span class="d">CARTOON</span></h1>
+  <p class="tag">🇲🇽 Historieta mexicana de ciencia ficción · Camina por el barrio, elige a tu héroe y lee cada temporada.</p>
+  <button id="bootStart" class="pixbtn">▶ ENTRAR</button>
+  <p class="hint">Usa <b>← →</b> o toca la pantalla · Mejor con sonido 🔊</p>
+  <div class="scan"></div>
+</div>
+
+<!-- ============ SELECCIÓN DE HÉROE ============ -->
+<section id="select" style="display:none">
+  <h1>★ SÚPER HÉROES DE LA CDMX ★</h1>
+  <div class="s">ELIGE TU HÉROE · CAMINA POR EL BARRIO<br>Y ENTRA A CADA NIVEL A LEER EL CÓMIC</div>
+  <div class="picks" id="picks"></div>
+  <button class="startbtn" id="enterBtn">▶ ENTRAR AL MUNDO</button>
+</section>
+
+<!-- ============ MUNDO ============ -->
+<div id="game">
+  <canvas id="world"></canvas>
+  <div id="hud">
+    <div class="hud-left">
+      <div class="badge" id="badgeTitle">CDMX HÉROES</div>
+      <div class="badge small" id="badgeProgress">Progreso 0%</div>
+    </div>
+    <div class="hud-right">
+      <button class="iconbtn" id="btnShop" title="Tienda">🛒</button>
+      <button class="iconbtn" id="btnSound" title="Sonido">🔊</button>
+      <button class="iconbtn" id="btnHero" title="Cambiar héroe">🦸</button>
+      <button class="iconbtn" id="btnFull" title="Pantalla completa">⛶</button>
+      <a class="iconbtn" href="admin.html" title="Panel de administración">⚙</a>
+    </div>
+  </div>
+
+  <!-- Contador de visitas con ojito -->
+  <div id="visitas" title="Visitas totales">
+    <div class="eye" id="visEye"></div>
+    <div class="bub"><span class="lbl">JUGADORES QUE<br>HAN LEÍDO</span><span class="num" id="visNum">···</span></div>
+  </div>
+
+  <div id="tooltip" class="tooltip" style="display:none"></div>
+
+  <div id="touchpad">
+    <button class="dpad" id="padL">◀</button>
+    <button class="dpad" id="padA">A</button>
+    <button class="dpad" id="padR">▶</button>
+  </div>
+
+  <div id="banner"><div class="l" id="bnL">NIVEL 1</div><div class="b" id="bnB">TEPITO</div></div>
+</div>
+
+<!-- ============ VISOR DE CÓMIC ============ -->
+<div id="comic" class="overlay">
+  <div class="comicstage"><img id="comicImg" src="" alt="Cómic"></div>
+  <div class="comicnav">
+    <button class="obtn" id="cPrev">‹</button>
+    <span class="pg" id="cPage">1/1</span>
+    <button class="obtn" id="cNext">›</button>
+    <button class="obtn pink" id="cClose">CERRAR ✕</button>
+  </div>
+</div>
+
+<!-- ============ TIENDA ============ -->
+<div id="shop" class="overlay">
+  <div class="shop-wrap">
+    <div class="shop-top">
+      <button class="obtn" id="shopBack">◀ MAPA</button>
+      <div class="shop-title"><span class="g">MEXA</span> TIENDA</div>
+      <button class="obtn pink" id="shopClose">CERRAR ✕</button>
+    </div>
+    <p class="shop-intro" id="shopIntro">Coleccionables oficiales de Mexa Cartoon. Los artículos exclusivos se desbloquearán con las próximas temporadas.</p>
+    <div class="shelfbox"><div class="shop-grid" id="shopGrid"></div></div>
+    <div class="shop-neon">COLECCIONABLES · CÓMICS · RAREZAS · PRÓXIMAMENTE</div>
+  </div>
+</div>
+
+<div id="stoast" class="tooltip" style="display:none;left:50%;top:auto;bottom:20px;transform:translateX(-50%);"></div>
+
+<a class="ziv-credito" href="#" onclick="return false">página creada por Ziv Creativo</a>
+
+<script>
+/* ============================================================
+   MEXA CARTOON — motor de audio chiptune (WebAudio, sin archivos)
+   Es el MISMO motor que Mundo Simz: mismas melodías nostálgicas.
+   ============================================================ */
+const MexAudio = (() => {
+  let ctx = null, master = null, musicGain = null, sfxGain = null;
+  let enabled = true, started = false;
+  let loopTimer = null, step = 0, currentTrack = null;
+  let customAudio = null, ambient = null;
+
+  const NOTE = {};
+  (() => {
+    const names = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+    for (let o = 1; o <= 7; o++) for (let i = 0; i < 12; i++)
+      NOTE[names[i] + o] = 440 * Math.pow(2, (o * 12 + i - 57) / 12);
+    NOTE['-'] = 0;
+  })();
+
+  const TRACKS = {
+    map: { bpm: 112,
+      lead: 'E5 - G5 - A5 - B5 - A5 - G5 - E5 - D5 - E5 - G5 - E5 - D5 - C5 - D5 - E5 - G5 - A5 - C6 - B5 - A5 - G5 - E5 - D5 - E5 - C5 - E5 - D5 - C5 - A4 - C5 - D5 - E5 -'.split(' '),
+      bass: 'A2 - - - A2 - - - F2 - - - F2 - - - C3 - - - C3 - - - G2 - - - G2 - - -'.split(' ') },
+    reader: { bpm: 78,
+      lead: 'C5 - - E5 - - G5 - - E5 - - D5 - - F5 - - A5 - - F5 - - E5 - - G5 - - C6 - - G5 - - F5 - - E5 - - D5 - - C5 - - - - -'.split(' '),
+      bass: 'C2 - - - - - - - F2 - - - - - - - A2 - - - - - - - G2 - - - - - - -'.split(' ') },
+    shop: { bpm: 100,
+      lead: 'D5 - F5 - A5 - F5 - D5 - C5 - D5 - F5 - G5 - A5 - C6 - A5 - G5 - F5 - E5 - D5 -'.split(' '),
+      bass: 'D2 - - - D2 - - - Bb1 - - - Bb1 - - - F2 - - - F2 - - - A2 - - - A2 - - -'.split(' ') }
+  };
+
+  function init() {
+    if (ctx) return;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) { enabled = false; return; }
+    ctx = new AC();
+    master = ctx.createGain(); master.gain.value = 0.55; master.connect(ctx.destination);
+    musicGain = ctx.createGain(); musicGain.gain.value = 0.30; musicGain.connect(master);
+    sfxGain = ctx.createGain(); sfxGain.gain.value = 0.55; sfxGain.connect(master);
+  }
+  function blip(freq, dur, type = 'square', gain = 0.3, dest) {
+    if (!ctx || !enabled) return;
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, ctx.currentTime);
+    g.gain.setValueAtTime(0, ctx.currentTime);
+    g.gain.linearRampToValueAtTime(gain, ctx.currentTime + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + dur);
+    o.connect(g); g.connect(dest || sfxGain);
+    o.start(); o.stop(ctx.currentTime + dur + 0.02);
+  }
+  function noise(dur = 0.12, gain = 0.15) {
+    if (!ctx || !enabled) return;
+    const buf = ctx.createBuffer(1, ctx.sampleRate * dur, ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
+    const s = ctx.createBufferSource(); s.buffer = buf;
+    const g = ctx.createGain(); g.gain.value = gain; s.connect(g); g.connect(sfxGain); s.start();
+  }
+  function noiseTick(g) {
+    if (!ctx || !enabled) return;
+    const buf = ctx.createBuffer(1, ctx.sampleRate * 0.03, ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1);
+    const s = ctx.createBufferSource(); s.buffer = buf;
+    const gg = ctx.createGain(); gg.gain.value = g; s.connect(gg); gg.connect(musicGain); s.start();
+  }
+  function playStep(track) {
+    const t = TRACKS[track]; if (!t) return;
+    const lead = t.lead[step % t.lead.length], bass = t.bass[step % t.bass.length];
+    if (lead && lead !== '-' && NOTE[lead]) blip(NOTE[lead], 0.22, 'square', 0.16, musicGain);
+    if (bass && bass !== '-' && NOTE[bass]) blip(NOTE[bass], 0.30, 'triangle', 0.22, musicGain);
+    if (step % 4 === 0) noiseTick(0.05);
+    step++;
+  }
+  const api = {
+    start() { init(); if (ctx && ctx.state === 'suspended') ctx.resume(); started = true; if (ambient) ambient.play().catch(()=>{}); },
+    setAmbient(url, vol = 0.5) {
+      ambient = new Audio(url); ambient.loop = true; ambient.preload = 'auto'; ambient.volume = enabled ? vol : 0;
+      ambient.addEventListener('playing', () => { clearInterval(loopTimer); loopTimer = null; });
+      ambient.addEventListener('error', () => { ambient = null; api.music('map'); });
+      if (started) ambient.play().catch(()=>{});
+      return ambient;
+    },
+    music(track) {
+      if (!started) return;
+      if (ambient) { currentTrack = track; if (ambient.paused) ambient.play().catch(()=>{}); return; }
+      if (currentTrack === track) return;
+      currentTrack = track; clearInterval(loopTimer); loopTimer = null; step = 0;
+      if (!enabled || !TRACKS[track]) return;
+      const spb = 60 / TRACKS[track].bpm / 2 * 1000;
+      playStep(track); loopTimer = setInterval(() => playStep(track), spb);
+    },
+    stopMusic() { clearInterval(loopTimer); loopTimer = null; currentTrack = null; },
+    toggle() {
+      enabled = !enabled;
+      if (master) master.gain.value = enabled ? 0.55 : 0;
+      if (ambient) { ambient.volume = enabled ? 0.5 : 0; if (enabled && ambient.paused) ambient.play().catch(()=>{}); }
+      return enabled;
+    },
+    get enabled() { return enabled; },
+    sfxSelect() { blip(660, .07); setTimeout(() => blip(880, .09), 60); },
+    sfxEnter() { [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => blip(f, .12), i * 70)); },
+    sfxPage() { noise(0.14, 0.10); blip(320, .05, 'triangle', .12); },
+    sfxCoin() { blip(988, .06); setTimeout(() => blip(1319, .25), 60); }
+  };
+  return api;
+})();
+</script>
+
+<script>
+/* ============================================================
+   SÚPER HÉROES CDMX — mundo pixel art (canvas 2D, procedural)
+   Caminata lateral tranquila al estilo Mundo Simz, temática CDMX:
+   volcanes, pirámide, El Ángel, iglesia, estadio, tianguis,
+   vecindades, papel picado y espectaculares de personajes.
+   ============================================================ */
+const MexWorld = (() => {
+  const VIEW_W = 480, VIEW_H = 270, GROUND = 196;
+  const NODE_X0 = 300, NODE_GAP = 300, N_LEVELS = 6;
+  const WORLD_W = NODE_X0 + (N_LEVELS - 1) * NODE_GAP + 340;
+
+  let cv, ctx, dpr = 1, scale = 1;
+  let viewW = VIEW_W, viewH = VIEW_H, camY = 0;
+  let levels = [];
+  let onEnter = () => {}, onHover = () => {};
+
+  const cam = { x: 0, targetX: 0, shake: 0 };
+  const hero = { x: 150, y: GROUND, dir: 1, state: 'idle', frame: 0, t: 0, target: null, onArrive: null };
+  let time = 0, hoverNode = null;
+  const keys = {};
+
+  const clouds = [], birds = [], structures = [], props = [], lamps = [], papel = [];
+
+  /* ---------- personajes (cutouts) ---------- */
+  const HERO_IMG = { heroina: 'assets/cutout-heroina.png', capitan: 'assets/cutout-capitan.png', buho: 'assets/cutout-buho.png' };
+  const heroImgs = {};
+  Object.keys(HERO_IMG).forEach(k => { const im = new Image(); im.ok = false; im.onload = () => im.ok = true; im.src = HERO_IMG[k]; heroImgs[k] = im; });
+  let avatar = 'heroina';
+
+  /* espectaculares: los tres héroes deslizándose */
+  const billImgs = ['assets/cutout-capitan.png', 'assets/cutout-heroina.png', 'assets/cutout-buho.png']
+    .map(src => { const im = new Image(); im.ok = false; im.onload = () => im.ok = true; im.src = src; return im; });
+  const easeIO = k => k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+
+  function rng(seed) { let s = seed >>> 0; return () => (s = (s * 1664525 + 1013904223) >>> 0) / 4294967296; }
+
+  function buildWorld() {
+    const r = rng(20260722);
+    for (let i = 0; i < 12; i++) clouds.push({ x: r() * WORLD_W, yr: r() * .5, s: .6 + r() * 1.1, spd: 2 + r() * 4, w: 26 + r() * 34 });
+    for (let i = 0; i < 8; i++) birds.push({ x: r() * WORLD_W, yr: .12 + r() * .4, spd: 8 + r() * 10, t: r() * 6 });
+
+    const anchors = [
+      { x: 120, type: 'iglesia', w: 120 },
+      { x: 470, type: 'piramide', w: 150 },
+      { x: 900, type: 'angel', w: 90 },
+      { x: 1300, type: 'tianguis', w: 150 },
+      { x: 1760, type: 'estadio', w: 150 },
+      { x: 2180, type: 'piramide', w: 150 }
+    ];
+    [360, 1050, 1620, 2060, 2460].forEach((bx, i) => anchors.push({ x: bx, type: 'billboard', w: 74, phase: i * 0.41 }));
+
+    const wallCols = ['#e0662a', '#3f9f6a', '#d84a6a', '#e0b23a', '#5a7fd0', '#c05ac0', '#4ab0c0', '#d0803a'];
+    let x = 24;
+    while (x < WORLD_W - 40) {
+      const hit = anchors.find(a => x < a.x + a.w + 16 && x + 88 > a.x - 16);
+      if (hit) { x = hit.x + hit.w + 18; continue; }
+      const w = 64 + ((r() * 3) | 0) * 12, h = 54 + ((r() * 3) | 0) * 10;
+      structures.push({ x, type: 'vecindad', w, h, wall: wallCols[(r() * wallCols.length) | 0] });
+      x += w + 16 + ((r() * 3) | 0) * 8;
+    }
+    anchors.forEach(a => structures.push(a));
+    structures.sort((a, b) => a.x - b.x);
+
+    const PT = ['nopal', 'maguey', 'nopal', 'taco', 'poste', 'bote', 'maguey'];
+    for (let i = 40; i < WORLD_W; i += 120) {
+      if (anchors.some(a => i > a.x - 20 && i < a.x + (a.w || 0) + 20)) continue;
+      props.push({ x: i + (r() * 40 - 20), t: PT[(r() * PT.length) | 0], s: .8 + r() * .5 });
+    }
+    for (let i = 0; i < WORLD_W; i += 150) lamps.push({ x: i + 70 });
+    for (let i = 0; i < WORLD_W; i += 26) papel.push({ x: i, c: ['#ff2e88', '#3fd0ff', '#ffd23f', '#1f9e4d', '#ff7a3d', '#c05ac0'][(i / 26) % 6 | 0] });
+  }
+
+  const nodeX = n => NODE_X0 + (n - 1) * NODE_GAP;
+  function nodeAt(wx, wy) {
+    for (const L of levels) { const nx = nodeX(L.n); if (wx > nx - 30 && wx < nx + 30 && wy > GROUND - 86 && wy < GROUND + 14) return L; }
+    return null;
+  }
+
+  /* ---------- helpers ---------- */
+  const P = (x, y, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(x | 0, y | 0, w | 0, h | 0); };
+  function glow(x, y, rad, c) { const g = ctx.createRadialGradient(x, y, 0, x, y, rad); g.addColorStop(0, c + 'aa'); g.addColorStop(1, c + '00'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, rad, 0, 6.29); ctx.fill(); }
+  function label(cx, y, text, color) { ctx.font = '6px "Press Start 2P", monospace'; ctx.textAlign = 'center'; ctx.fillStyle = '#000'; ctx.fillText(text, cx + 1, y + 1); ctx.fillStyle = color; ctx.fillText(text, cx, y); ctx.textAlign = 'left'; }
+  function windows(x, y, cols, rows, gap) { for (let i = 0; i < cols; i++) for (let j = 0; j < rows; j++) P(x + i * gap, y + j * gap, 6, 6, ((i * 3 + j * 7 + (x | 0)) % 5 !== 0) ? '#bfe9ff' : '#22406a'); }
+
+  /* ---------- edificios ---------- */
+  function drawVecindad(s) {
+    const { x, w, h, wall } = s, y = GROUND - h;
+    P(x, y, w, h, wall); P(x, y, w, 3, '#00000033'); P(x - 3, y - 4, w + 6, 5, '#00000055');
+    windows(x + 8, y + 14, Math.max(2, (w - 20) / 12 | 0), 2, 12);
+    P(x + w / 2 - 7, GROUND - 20, 14, 20, '#5a3418'); P(x + w / 2 + 2, GROUND - 11, 2, 2, '#ffd23f');
+    P(x + w - 20, y - 12, 12, 12, '#2b2b2b'); P(x + w - 20, y - 12, 12, 3, '#444');
+    ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x + 6, y + 6); ctx.lineTo(x + w - 6, y + 4); ctx.stroke();
+    P(x + 12, y + 6, 4, 7, '#ff2e88'); P(x + 22, y + 6, 4, 8, '#3fd0ff'); P(x + 32, y + 6, 4, 6, '#ffd23f');
+  }
+  function drawIglesia(s) {
+    const { x, w } = s, h = 78, y = GROUND - h;
+    P(x, y, w, h, '#e8dcc0'); P(x, y, w, 5, '#c98a3a');
+    P(x + w / 2 - 14, y - 22, 28, 22, '#e0a53a'); P(x + w / 2 - 14, y - 22, 28, 4, '#f4c95a');
+    P(x + w / 2 - 2, y - 34, 4, 12, '#c98a3a'); P(x + w / 2 - 5, y - 32, 10, 3, '#c98a3a');
+    windows(x + 12, y + 18, 3, 2, 14);
+    P(x + w / 2 - 9, GROUND - 26, 18, 26, '#7a4a2b'); P(x + w / 2 - 9, y + 14, 18, 8, '#7a4a2b');
+    label(x + w / 2, y + 66, 'PARROQUIA', '#b9432f');
+  }
+  function drawPiramide(s) {
+    const { x, w } = s, cx = x + w / 2, base = GROUND, top = GROUND - 96;
+    for (let i = 0; i < 6; i++) { const t = i / 6, ny = base - i * 15, nh = 15, half = (w / 2) * (1 - t * 0.82); P(cx - half, ny - nh, half * 2, nh, i % 2 ? '#b98a4a' : '#c99a5a'); P(cx - half, ny - nh, half * 2, 3, '#8a6a3a'); }
+    P(cx - 8, top + 4, 16, 92, '#8a6a3a');
+    for (let i = 0; i < 12; i++) P(cx - 8, top + 8 + i * 8, 16, 3, '#6a4a24');
+    P(cx - 14, top - 12, 28, 14, '#c0503a'); P(cx - 14, top - 12, 28, 3, '#e0704a');
+    label(cx, GROUND - 104, 'PIRÁMIDE', '#e0b23a');
+  }
+  function drawAngel(s) {
+    const { x, w } = s, cx = x + w / 2;
+    P(cx - 16, GROUND - 12, 32, 12, '#cfc7b0'); P(cx - 10, GROUND - 20, 20, 8, '#e9e2cf');
+    P(cx - 5, GROUND - 96, 10, 76, '#e9e2cf'); P(cx - 6, GROUND - 96, 12, 5, '#e9e2cf');
+    P(cx - 4, GROUND - 116, 8, 10, '#ffd23f'); P(cx - 6, GROUND - 108, 4, 6, '#ffd94a'); P(cx + 2, GROUND - 108, 4, 6, '#ffd94a');
+    P(cx - 14, GROUND - 112, 12, 3, '#ffd94a'); P(cx + 2, GROUND - 112, 12, 3, '#ffd94a');
+    glow(cx, GROUND - 112, 20, '#ffd23f'); label(cx, GROUND - 128, 'EL ÁNGEL', '#ffd23f');
+  }
+  function drawTianguis(s) {
+    const { x, w } = s, cols = ['#ff2e88', '#3fd0ff', '#ffd23f', '#1f9e4d'];
+    for (let i = 0; i < 4; i++) { const bx = x + i * (w / 4), bw = w / 4 - 4, y = GROUND - 40; P(bx, y, bw, 40, '#8a5a2a'); P(bx - 2, y - 8, bw + 4, 10, cols[i]); for (let k = 0; k < bw; k += 8) P(bx + k, y - 8, 4, 10, '#ffffff55'); P(bx + 3, y + 6, bw - 6, 8, '#f4e0b0'); }
+    label(x + w / 2, GROUND - 52, 'TIANGUIS', '#e0342a');
+  }
+  function drawEstadio(s) {
+    const { x, w } = s, cx = x + w / 2;
+    ctx.fillStyle = '#8a8f9a'; ctx.beginPath(); ctx.ellipse(cx, GROUND - 14, w / 2, 26, 0, 0, 6.29); ctx.fill();
+    ctx.fillStyle = '#2f7a3f'; ctx.beginPath(); ctx.ellipse(cx, GROUND - 14, w / 2 - 12, 17, 0, 0, 6.29); ctx.fill();
+    P(cx - 1, GROUND - 22, 3, 8, '#f4f4f4');
+    P(x + 6, GROUND - 40, 4, 20, '#555'); P(x + 2, GROUND - 44, 12, 6, '#333');
+    P(x + w - 10, GROUND - 40, 4, 20, '#555'); P(x + w - 14, GROUND - 44, 12, 6, '#333');
+    label(cx, GROUND - 48, 'ESTADIO', '#2b8a5a');
+  }
+
+  /* ---------- espectacular ---------- */
+  function drawBillImg(im, bx, by, bw, bh) {
+    if (!im || !im.ok) { P((bx + bw * 0.28) | 0, (by + bh * 0.22) | 0, (bw * 0.44) | 0, (bh * 0.7) | 0, '#0d1330'); return; }
+    const pad = 5, availH = bh - pad * 2, availW = bw - pad * 2;
+    let dh = availH, dw = dh * (im.width / im.height);
+    if (dw > availW) { dw = availW; dh = dw * (im.height / im.width); }
+    const dx = bx + (bw - dw) / 2, dy = by + bh - pad - dh;
+    ctx.imageSmoothingEnabled = true; ctx.drawImage(im, dx | 0, dy | 0, dw | 0, dh | 0); ctx.imageSmoothingEnabled = false;
+  }
+  function drawBillboard(s) {
+    const w = s.w || 74, cx = s.x + w / 2, panelW = 64, panelH = 80, postH = 58;
+    const px = (cx - panelW / 2) | 0, py = (GROUND - postH - panelH) | 0;
+    P(px + 8, GROUND - postH, 5, postH, '#4a4558'); P(px + panelW - 13, GROUND - postH, 5, postH, '#4a4558');
+    P(px + 6, GROUND - postH + 18, panelW - 12, 4, '#3a3550');
+    P(px - 5, py - 5, panelW + 10, panelH + 10, '#141024'); P(px - 3, py - 3, panelW + 6, panelH + 6, '#ffd23f');
+    P(px, py, panelW, panelH, '#12183a');
+    const per = 4.2, slideFrac = 0.16, tt = time / per + (s.phase || 0);
+    const idx = Math.floor(tt) % billImgs.length, nxt = (idx + 1) % billImgs.length, frac = tt - Math.floor(tt);
+    let k = 0; if (frac > 1 - slideFrac) k = easeIO((frac - (1 - slideFrac)) / slideFrac);
+    ctx.save(); ctx.beginPath(); ctx.rect(px, py, panelW, panelH); ctx.clip();
+    drawBillImg(billImgs[idx], px - k * panelW, py, panelW, panelH);
+    if (k > 0) drawBillImg(billImgs[nxt], px + (1 - k) * panelW, py, panelW, panelH);
+    ctx.restore();
+    for (let i = 4; i < panelW - 2; i += 10) P(px + i, py - 4, 4, 4, (Math.floor(time * 4) + i) % 20 < 10 ? '#ffe27a' : '#ff9f1c');
+    label(cx, py + panelH + 13, '★ HÉROES ★', '#ff6ec7');
+  }
+
+  /* ---------- props ---------- */
+  function drawProp(p) {
+    const x = p.x, s = p.s;
+    if (p.t === 'nopal') { P(x - 3, GROUND - 22 * s, 6, 22 * s, '#2a9150'); P(x - 9 * s, GROUND - 16 * s, 6 * s, 8 * s, '#2a9150'); P(x + 4 * s, GROUND - 20 * s, 6 * s, 8 * s, '#2a9150'); P(x - 2, GROUND - 24 * s, 4, 3, '#e0342a'); }
+    else if (p.t === 'maguey') { for (let i = -2; i <= 2; i++) { ctx.fillStyle = i % 2 ? '#3a8a5a' : '#4a9a6a'; ctx.beginPath(); ctx.moveTo(x, GROUND); ctx.lineTo(x + i * 6 * s, GROUND - (18 - Math.abs(i) * 3) * s); ctx.lineTo(x + i * 6 * s + 3, GROUND); ctx.closePath(); ctx.fill(); } }
+    else if (p.t === 'taco') { P(x - 12 * s, GROUND - 16 * s, 24 * s, 12 * s, '#c94b2b'); P(x - 12 * s, GROUND - 6 * s, 24 * s, 6 * s, '#8a2f1a'); P(x - 10 * s, GROUND - 24 * s, 20 * s, 6 * s, '#f4d24a'); P(x - 10 * s, GROUND - 24 * s, 4 * s, 6 * s, '#e0342a'); P(x + 2 * s, GROUND - 24 * s, 4 * s, 6 * s, '#1f9e4d'); }
+    else if (p.t === 'poste') { P(x - 1, GROUND - 40 * s, 3, 40 * s, '#6a5a4a'); P(x - 6, GROUND - 40 * s, 14, 2, '#4a3a2a'); }
+    else { P(x - 4, GROUND - 12, 8, 12, '#3a6a3a'); P(x - 4, GROUND - 13, 8, 2, '#2a5a2a'); }
+  }
+
+  /* ---------- héroe ---------- */
+  function drawHero() {
+    const im = heroImgs[avatar], x = hero.x;
+    ctx.globalAlpha = .28; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(x, GROUND, 12, 4, 0, 0, 6.29); ctx.fill(); ctx.globalAlpha = 1;
+    const walking = hero.state === 'walk';
+    const bob = walking ? -Math.abs(Math.sin(hero.frame * 0.8)) * 3 : Math.sin(time * 3) * 1.2;
+    const rot = walking ? Math.sin(hero.frame * 0.8) * 0.05 : 0;
+    if (!im || !im.ok) { P(x - 8, GROUND - 44, 16, 44, '#444'); return; }
+    const h = 56, w = h * (im.width / im.height || 0.5);
+    ctx.save(); ctx.translate(x, GROUND + bob); ctx.rotate(rot); ctx.scale(hero.dir, 1);
+    ctx.imageSmoothingEnabled = true; ctx.drawImage(im, -w / 2, -h, w, h); ctx.imageSmoothingEnabled = false;
+    ctx.restore();
+  }
+
+  /* ---------- letreros de nivel ---------- */
+  function drawNode(L) {
+    const x = nodeX(L.n), y = GROUND, coming = !(L.pages && L.pages.length), done = !!L.read, hovered = hoverNode && hoverNode.n === L.n;
+    const bob = Math.sin(time * 2 + L.n) * 1.5;
+    P(x - 2, y - 36, 4, 36, coming ? '#3a3550' : '#8a6a4f');
+    const cw = 48, ch = 32, cx = x - cw / 2, cy = y - 36 - ch + bob;
+    if (coming) {
+      P(cx - 2, cy - 2, cw + 4, ch + 4, '#000'); P(cx, cy, cw, ch, '#1a1730');
+      ctx.globalAlpha = .85; label(x, cy + 12, 'NIVEL ' + L.n, '#5a5a80'); label(x, cy + 24, L.name.slice(0, 9), '#5a5a80'); ctx.globalAlpha = 1;
+      label(x, y - 46 - ch + bob, 'PRÓXIMAMENTE', '#ff6ec7');
+    } else {
+      P(cx - 2, cy - 2, cw + 4, ch + 4, '#2b1600'); P(cx, cy, cw, ch, done ? '#2f7a3f' : '#c0392b'); P(cx, cy, cw, 3, '#ffffff33');
+      glow(x, cy + ch / 2, hovered ? 44 : 30, done ? '#4ade80' : '#ffd23f');
+      label(x, cy + 12, 'NIVEL ' + L.n, '#ffd23f'); label(x, cy + 24, done ? '✔ LEÍDO' : L.name.slice(0, 9), '#ffffff');
+      P(x + cw / 2 - 4, cy - 8 + Math.sin(time * 3) * 2, 4, 4, '#ffd23f');
+    }
+    P(x - 12, y - 2, 24, 3, coming ? '#2a2540' : '#ffd23f');
+  }
+
+  /* ---------- batiseñal HALCÓN + Quetzalcóatl ----------
+     La batiseñal es un reflector fijo sobre el estadio que proyecta un HALCÓN
+     (no un murciélago) en un disco de luz en el cielo. El Quetzalcóatl es una
+     serpiente emplumada que cruza el cielo en bucle. */
+  const SIGNAL_X = 1760;   // ancla en el mundo: sobre el estadio
+
+  function drawFalcon(cx, cy, s, col) {
+    ctx.fillStyle = col;
+    // alas extendidas (halcón en picada)
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - 2 * s);
+    ctx.quadraticCurveTo(cx - 17 * s, cy - 15 * s, cx - 23 * s, cy - 3 * s);
+    ctx.quadraticCurveTo(cx - 13 * s, cy - 2 * s, cx, cy + 2 * s);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - 2 * s);
+    ctx.quadraticCurveTo(cx + 17 * s, cy - 15 * s, cx + 23 * s, cy - 3 * s);
+    ctx.quadraticCurveTo(cx + 13 * s, cy - 2 * s, cx, cy + 2 * s);
+    ctx.fill();
+    // cuerpo
+    ctx.beginPath(); ctx.ellipse(cx, cy, 2.6 * s, 7 * s, 0, 0, 6.29); ctx.fill();
+    // cabeza + pico
+    ctx.beginPath(); ctx.arc(cx, cy - 7 * s, 2.4 * s, 0, 6.29); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(cx + 2 * s, cy - 8 * s); ctx.lineTo(cx + 5.5 * s, cy - 7.2 * s); ctx.lineTo(cx + 2 * s, cy - 6 * s); ctx.closePath(); ctx.fill();
+    // cola
+    ctx.beginPath(); ctx.moveTo(cx - 2.4 * s, cy + 6 * s); ctx.lineTo(cx + 2.4 * s, cy + 6 * s); ctx.lineTo(cx, cy + 12 * s); ctx.closePath(); ctx.fill();
+  }
+
+  function drawSignal(camX, W) {
+    const bx = SIGNAL_X;
+    if (bx < camX - 140 || bx > camX + W + 60) return;
+    const baseY = GROUND - 46, discX = bx - 74, discY = 44;
+    const pulse = 0.62 + Math.sin(time * 2) * 0.16;
+    // haz de luz cónico desde la azotea al disco
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    const grad = ctx.createLinearGradient(bx, baseY, discX, discY);
+    grad.addColorStop(0, 'rgba(255,238,168,0)');
+    grad.addColorStop(1, 'rgba(255,238,168,' + (0.22 * pulse).toFixed(3) + ')');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.moveTo(bx - 3, baseY); ctx.lineTo(bx + 3, baseY);
+    ctx.lineTo(discX + 26, discY + 8); ctx.lineTo(discX - 26, discY - 8);
+    ctx.closePath(); ctx.fill();
+    ctx.restore();
+    // foco en la azotea
+    P(bx - 5, baseY - 3, 12, 6, '#3a3550'); P(bx - 3, baseY - 2, 8, 4, '#ffe27a');
+    // disco luminoso con el halcón
+    glow(discX, discY, 36 * pulse, '#ffe27a');
+    ctx.fillStyle = 'rgba(255,242,182,' + (0.9 * pulse).toFixed(3) + ')';
+    ctx.beginPath(); ctx.arc(discX, discY, 22, 0, 6.29); ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,.75)'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(discX, discY, 22, 0, 6.29); ctx.stroke();
+    drawFalcon(discX, discY + 2, 1.15, '#241708');
+  }
+
+  function drawQuetzal() {
+    const N = 15, seg = 14;
+    const hx = ((time * 24) % (WORLD_W + 520)) - 260;
+    const hy = 40 + Math.sin(time * 0.7) * 7;
+    // cuerpo: de la cola a la cabeza (la cabeza queda encima)
+    for (let i = N; i >= 1; i--) {
+      const x = hx - i * seg, y = hy + Math.sin(time * 3 - i * 0.5) * 11, r = Math.max(1.4, 6 - i * 0.18);
+      P(x - r, y - r, r * 2, r * 2, '#1f9e4d');
+      P(x - r + 1, y + r - 2, r * 2 - 2, 2, '#8fe0a8');            // vientre claro
+      if (i % 2 === 0) P(x - 1, y - r - 3, 2, 3, i % 4 === 0 ? '#e0342a' : '#ffd23f'); // cresta de plumas
+    }
+    const y0 = hy + Math.sin(time * 3) * 11;
+    ctx.fillStyle = '#1f9e4d'; ctx.beginPath(); ctx.arc(hx, y0, 8, 0, 6.29); ctx.fill();   // cabeza
+    // penacho de plumas
+    P(hx - 4, y0 - 12, 2, 7, '#ffd23f'); P(hx - 1, y0 - 13, 2, 8, '#e0342a'); P(hx + 2, y0 - 12, 2, 7, '#3fd0ff');
+    P(hx + 5, y0 - 2, 2, 2, '#fff'); P(hx + 6, y0 - 2, 1, 1, '#000');                        // ojo
+    // fauces abiertas
+    ctx.fillStyle = '#e0342a'; ctx.beginPath(); ctx.moveTo(hx + 7, y0 - 3); ctx.lineTo(hx + 16, y0 - 5); ctx.lineTo(hx + 16, y0 - 1); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#f7e4a0'; ctx.beginPath(); ctx.moveTo(hx + 7, y0 + 1); ctx.lineTo(hx + 16, y0 + 3); ctx.lineTo(hx + 16, y0 + 6); ctx.closePath(); ctx.fill();
+    P(hx + 16, y0, 6, 1, '#e0342a');                                                          // lengua
+  }
+
+  /* ---------- render ---------- */
+  let dt = 0, last = 0;
+  function render() {
+    ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.save(); ctx.scale(scale, scale);
+    ctx.beginPath(); ctx.rect(0, 0, viewW, viewH); ctx.clip();
+
+    const g = ctx.createLinearGradient(0, 0, 0, viewH);
+    g.addColorStop(0, '#3a6fd0'); g.addColorStop(.55, '#f5a35e'); g.addColorStop(1, '#ffd9a0');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, viewW, viewH);
+    glow(viewW * .5, (GROUND + camY) * .55, 34, '#fff3a0'); P(viewW * .5 - 9, (GROUND + camY) * .55 - 9, 18, 18, '#fff6c8');
+
+    ctx.save(); ctx.translate(0, camY);
+    const camX = cam.x, W = viewW + 40;
+
+    ctx.save(); ctx.translate(-camX * 0.12, 0);
+    for (let i = -1; i < WORLD_W / 320 + 2; i++) {
+      const bx = i * 320;
+      ctx.fillStyle = '#5a5f86'; ctx.beginPath(); ctx.moveTo(bx, 172); ctx.lineTo(bx + 84, 70); ctx.lineTo(bx + 168, 172); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#eef2ff'; ctx.beginPath(); ctx.moveTo(bx + 66, 92); ctx.lineTo(bx + 84, 70); ctx.lineTo(bx + 102, 92); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#4a4f76'; ctx.beginPath(); ctx.moveTo(bx + 150, 172); ctx.lineTo(bx + 220, 104); ctx.lineTo(bx + 300, 172); ctx.closePath(); ctx.fill();
+      ctx.globalAlpha = .4; for (let k = 0; k < 3; k++) { const t = (time * 4 + k * 20) % 60; P(bx + 84 - 4 - t * .12, 70 - 6 - t, 10 + t * .2, 5, '#dfe3ee'); } ctx.globalAlpha = 1;
+    }
+    ctx.restore();
+
+    ctx.save(); ctx.translate(-camX * 0.3, 0); ctx.fillStyle = '#3f7a4a';
+    for (let i = -1; i < WORLD_W / 180 + 2; i++) { ctx.beginPath(); ctx.arc(i * 180 + 90, 202, 78, Math.PI, 0); ctx.fill(); }
+    ctx.restore();
+
+    ctx.save(); ctx.translate(-camX * 0.5, 0); ctx.globalAlpha = .9;
+    clouds.forEach(c => { const cx = ((c.x - time * c.spd) % (WORLD_W + 200) + WORLD_W + 200) % (WORLD_W + 200) - 100, cy = 12 + c.yr * 70; P(cx, cy, c.w, 7 * c.s, '#fff'); P(cx + 6, cy - 5 * c.s, c.w * .6, 7 * c.s, '#fff'); P(cx + c.w * .3, cy - 9 * c.s, c.w * .35, 7 * c.s, '#fff'); });
+    ctx.globalAlpha = 1; ctx.restore();
+
+    // Quetzalcóatl cruzando el cielo (capa lejana, parallax suave)
+    ctx.save(); ctx.translate(-camX * 0.5, 0); drawQuetzal(); ctx.restore();
+
+    ctx.save(); ctx.translate(-camX, 0);
+    P(camX - 20, GROUND - 6, W, 6, '#4e9e4e');
+
+    // batiseñal con el halcón (detrás de los edificios)
+    drawSignal(camX, W);
+
+    structures.forEach(st => {
+      if (st.x + (st.w || 90) < camX - 40 || st.x > camX + W) return;
+      ({ vecindad: drawVecindad, iglesia: drawIglesia, piramide: drawPiramide, angel: drawAngel, tianguis: drawTianguis, estadio: drawEstadio, billboard: drawBillboard }[st.type] || (() => {}))(st);
+    });
+
+    ctx.save(); ctx.translate(0, Math.sin(time) * 1.5);
+    papel.forEach(f => { if (f.x < camX - 20 || f.x > camX + W) return; const yy = GROUND - 118 + Math.sin(f.x * .05) * 4; ctx.fillStyle = f.c; ctx.beginPath(); ctx.moveTo(f.x, yy); ctx.lineTo(f.x + 20, yy); ctx.lineTo(f.x + 10, yy + 12); ctx.closePath(); ctx.fill(); });
+    ctx.strokeStyle = '#00000044'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(camX - 20, GROUND - 118); ctx.lineTo(camX + W, GROUND - 118); ctx.stroke();
+    ctx.restore();
+
+    P(camX - 20, GROUND, W, 10, '#c9c4b4'); P(camX - 20, GROUND, W, 1, '#e6e2d4');
+    for (let i = Math.floor(camX / 16) * 16; i < camX + W; i += 16) P(i, GROUND, 1, 10, '#b3ae9e');
+    P(camX - 20, GROUND + 10, W, 34, '#33343f');
+    for (let i = Math.floor(camX / 24) * 24; i < camX + W; i += 24) P(i, GROUND + 26, 12, 2, '#e8d44d');
+    P(camX - 20, GROUND + 44, W, 8, '#c9c4b4');
+    P(camX - 20, GROUND + 52, W, Math.max(40, viewH - camY - GROUND - 52 + 20), '#3f8a49');
+
+    props.forEach(p => { if (p.x < camX - 40 || p.x > camX + W) return; drawProp(p); });
+    lamps.forEach(l => { if (l.x < camX - 30 || l.x > camX + W) return; P(l.x, GROUND - 40, 3, 40, '#5a5f6e'); P(l.x - 4, GROUND - 44, 11, 4, '#7a808f'); });
+
+    levels.forEach(drawNode);
+    drawHero();
+
+    birds.forEach(b => { b.x += b.spd * dt; if (b.x > WORLD_W + 30) b.x = -30; if (b.x < camX - 30 || b.x > camX + W) return; const f = Math.sin(time * 8 + b.t) * 3, by = 20 + b.yr * 80; P(b.x, by, 3, 1, '#2b2b38'); P(b.x - 3, by - f, 3, 1, '#2b2b38'); P(b.x + 3, by - f, 3, 1, '#2b2b38'); });
+
+    ctx.restore(); ctx.restore(); ctx.restore();
+  }
+
+  /* ---------- lógica ---------- */
+  function update(ts) {
+    dt = Math.min(0.05, (ts - last) / 1000 || 0); last = ts; time += dt;
+    let move = 0;
+    if (hero.target === null) {
+      if (keys.ArrowLeft || keys.a || keys.padL) move = -1;
+      if (keys.ArrowRight || keys.d || keys.padR) move = 1;
+    } else {
+      const d = hero.target - hero.x;
+      if (Math.abs(d) < 3) { hero.x = hero.target; hero.target = null; hero.state = 'idle'; const cb = hero.onArrive; hero.onArrive = null; if (cb) cb(); }
+      else move = Math.sign(d);
+    }
+    if (move !== 0) { hero.dir = move; hero.x = Math.max(40, Math.min(WORLD_W - 40, hero.x + move * 64 * dt)); hero.state = 'walk'; hero.t += dt; if (hero.t > 0.12) { hero.t = 0; hero.frame++; } }
+    else hero.state = 'idle';
+
+    cam.targetX = Math.max(0, Math.min(WORLD_W - viewW, hero.x - viewW / 2));
+    cam.x += (cam.targetX - cam.x) * Math.min(1, dt * 5);
+    render();
+    requestAnimationFrame(update);
+  }
+
+  /* ---------- entrada ---------- */
+  function screenToWorld(px, py) {
+    const rect = cv.getBoundingClientRect(), cssScale = scale / dpr;
+    const sx = (px - rect.left) / cssScale, sy = (py - rect.top) / cssScale - camY;
+    return { x: sx + cam.x, y: sy };
+  }
+  function handleClick(px, py) {
+    const w = screenToWorld(px, py), n = nodeAt(w.x, w.y);
+    if (n) return goToLevel(n);
+    hero.target = Math.max(40, Math.min(WORLD_W - 40, w.x)); hero.onArrive = null;
+  }
+  function goToLevel(L) { hero.target = nodeX(L.n) - 2; hero.onArrive = () => onEnter(L); }
+
+  function resize() {
+    dpr = Math.min(2, window.devicePixelRatio || 1);
+    const w = window.innerWidth, h = window.innerHeight;
+    cv.width = w * dpr; cv.height = h * dpr; cv.style.width = w + 'px'; cv.style.height = h + 'px';
+    const cw = w * dpr, ch = h * dpr, targetW = w < 520 ? 280 : (w < 900 ? 360 : VIEW_W);
+    scale = cw / targetW; if (ch / scale < 190) scale = ch / 190;
+    viewW = cw / scale; viewH = ch / scale; camY = Math.max(0, viewH * 0.76 - GROUND);
+    ctx.imageSmoothingEnabled = false;
+    cam.x = Math.max(0, Math.min(WORLD_W - viewW, hero.x - viewW / 2));
+  }
+
+  return {
+    GROUND, nodeX,
+    get hero() { return hero; },
+    init(canvas, cbs) {
+      cv = canvas; ctx = cv.getContext('2d', { alpha: false });
+      onEnter = cbs.onEnter || onEnter; onHover = cbs.onHover || onHover;
+      buildWorld(); resize();
+      window.addEventListener('resize', resize);
+      window.addEventListener('orientationchange', () => setTimeout(resize, 200));
+      cv.addEventListener('click', e => handleClick(e.clientX, e.clientY));
+      cv.addEventListener('mousemove', e => { const w = screenToWorld(e.clientX, e.clientY), n = nodeAt(w.x, w.y); hoverNode = n; cv.style.cursor = n ? 'pointer' : 'default'; onHover(n, e.clientX, e.clientY); });
+      window.addEventListener('keydown', e => { keys[e.key] = true; if (e.key === 'Enter' || e.key === ' ') { const n = levels.find(L => Math.abs(nodeX(L.n) - hero.x) < 34); if (n) { e.preventDefault(); goToLevel(n); } } });
+      window.addEventListener('keyup', e => { keys[e.key] = false; });
+      requestAnimationFrame(ts => { last = ts; update(ts); });
+    },
+    setLevels(list) { levels = list; },
+    setAvatar(k) { if (heroImgs[k]) avatar = k; },
+    setKey(k, v) { keys[k] = v; }
+  };
+})();
+</script>
+
+<script>
+/* ============================================================
+   Glue: héroe, niveles (leídos de temporadas.json), cómic, progreso.
+   ============================================================ */
+(function () {
+  const $id = i => document.getElementById(i);
+  const HEROES = {
+    heroina: { name: 'PALOMA BLANCA', img: 'assets/cutout-heroina.png' },
+    capitan: { name: 'CAPITÁN MÉXICO', img: 'assets/cutout-capitan.png' },
+    buho:    { name: 'HALCÓN NOCTURNO', img: 'assets/cutout-buho.png' }
+  };
+  const ORDER = ['heroina', 'capitan', 'buho'];
+  let hero = 'heroina';
+
+  // nombres de los niveles (barrios de la CDMX). El nivel n usa la temporada n
+  // del cómic → mismo modelo que Mundo Simz, editable desde el panel.
+  const NAMES = { 1: 'TEPITO', 2: 'EL ÁNGEL', 3: 'IZTAPALAPA', 4: 'COAPA', 5: 'NEZA', 6: 'BARRIO BRAVO' };
+
+  // páginas por defecto (mientras no exista temporadas.json / primer despliegue):
+  // nivel 1 = t1-01..15, nivel 2 = t2-01..09. El resto se suben desde el panel.
+  const seq = (p, a, b) => { const r = []; for (let i = a; i <= b; i++) r.push(p + String(i).padStart(2, '0') + '.jpg'); return r; };
+  const MANIFEST = { 1: seq('t1-', 1, 15), 2: seq('t2-', 1, 9) };
+
+  // temporadas.json vive en la RAÍZ de ESTE sitio (base de datos propia de Mexa Cartoon)
+  let REMOTE = {}, R2_BASE = '';
+  const esR2 = p => /^t\d{1,2}-\d{4}\.[a-z]+$/i.test(String(p));
+  const urlDe = p => esR2(p) && R2_BASE ? `${R2_BASE}/${encodeURIComponent(p)}` : p;
+
+  const LEVELS = [1, 2, 3, 4, 5, 6].map(n => ({ n, name: NAMES[n], pages: [], read: false }));
+
+  const READ_KEY = 'cdmxheroes.read.v1';
+  let readSet = {};
+  try { readSet = JSON.parse(localStorage.getItem(READ_KEY) || '{}'); } catch (e) {}
+
+  async function loadLevels() {
+    try { const r = await fetch('temporadas.json?t=' + Date.now()); if (r.ok) { REMOTE = await r.json() || {}; R2_BASE = REMOTE._r2 || ''; } } catch (e) {}
+    LEVELS.forEach(L => {
+      const rm = REMOTE[L.n];
+      const raw = (rm && Array.isArray(rm.pages) && rm.pages.length) ? rm.pages.slice() : (MANIFEST[L.n] || []).slice();
+      L.pages = raw.map(urlDe);
+      if (rm && rm.title) L.name = String(rm.title).toUpperCase();
+      L.read = !!readSet[L.n];
+    });
+  }
+
+  function updProgreso() {
+    const jugables = LEVELS.filter(L => L.pages.length);
+    const done = jugables.filter(L => L.read).length, total = jugables.length || 1;
+    $id('badgeProgress').textContent = `Progreso ${Math.round(done / total * 100)}%  ·  ${done}/${total}`;
+  }
+
+  // --- selección de héroe ---
+  const picks = $id('picks');
+  ORDER.forEach(k => {
+    const d = document.createElement('div'); d.className = 'pick' + (k === hero ? ' on' : '');
+    d.innerHTML = `<img src="${HEROES[k].img}" alt="${HEROES[k].name}"><div class="n">${HEROES[k].name}</div>`;
+    d.onclick = () => { hero = k; document.querySelectorAll('.pick').forEach(x => x.classList.remove('on')); d.classList.add('on'); MexAudio.sfxSelect(); };
+    picks.appendChild(d);
+  });
+
+  let started = false;
+  async function start() {
+    $id('select').style.display = 'none';
+    $id('game').classList.add('on');
+    MexWorld.setAvatar(hero);
+    if (!started) {
+      await loadLevels();
+      MexWorld.setLevels(LEVELS);
+      MexWorld.init($id('world'), { onEnter: enterLevel, onHover: showTip });
+      started = true;
+    }
+    updProgreso();
+    MexAudio.music('map');
+  }
+
+  // --- pantalla de título → selección de héroe (aquí arranca el audio) ---
+  $id('bootStart').onclick = () => {
+    MexAudio.start();
+    MexAudio.sfxEnter();
+    $id('boot').classList.add('hidden');
+    $id('select').style.display = 'flex';
+  };
+
+  $id('enterBtn').onclick = start;
+  $id('btnHero').onclick = () => { $id('game').classList.remove('on'); $id('select').style.display = 'flex'; };
+  $id('btnFull').onclick = () => { if (!document.fullscreenElement) { document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); } else { document.exitFullscreen && document.exitFullscreen(); } };
+
+  // --- sonido ---
+  $id('btnSound').onclick = () => { const on = MexAudio.toggle(); $id('btnSound').textContent = on ? '🔊' : '🔇'; };
+
+  // --- tienda ---
+  const shopEl = $id('shop');
+  let shopLoaded = false;
+  async function loadShop() {
+    if (shopLoaded) return; shopLoaded = true;
+    let data = null;
+    try { const r = await fetch('productos.json?t=' + Date.now()); if (r.ok) data = await r.json(); } catch (e) {}
+    if (!data) data = { intro: '', items: Array.from({ length: 10 }, (_, i) => ({ id: 'p' + (i + 1), name: 'Próximamente', price: '', image: '', locked: true, tag: '' })) };
+    if (data.intro) $id('shopIntro').textContent = data.intro;
+    const g = $id('shopGrid'); g.innerHTML = '';
+    (data.items || []).slice(0, 20).forEach(it => {
+      const locked = it.locked !== false;
+      const d = document.createElement('div');
+      d.className = 'scard' + (locked ? ' locked' : '');
+      d.innerHTML =
+        (it.image ? `<img src="${it.image}" alt="">` : '<div class="sil"></div>') +
+        (locked ? '<div class="lock">🔒</div>' : '') +
+        (it.tag ? `<div class="tag">${it.tag}</div>` : '') +
+        `<div class="label">${locked ? 'Próximamente' : (it.name || 'Artículo')}` +
+        `${!locked && it.price ? `<span class="price">${it.price}</span>` : ''}</div>`;
+      d.onclick = () => { MexAudio.sfxCoin(); stoast(locked ? 'Próximamente…' : (it.name || 'Artículo') + (it.price ? ' · ' + it.price : '')); };
+      g.appendChild(d);
+    });
+  }
+  function stoast(m) { const t = $id('stoast'); t.textContent = m; t.style.display = 'block'; clearTimeout(t._x); t._x = setTimeout(() => t.style.display = 'none', 2000); }
+  function openShop() { loadShop(); shopEl.classList.add('on'); MexAudio.music('shop'); }
+  function closeShop() { shopEl.classList.remove('on'); MexAudio.music('map'); }
+  $id('btnShop').onclick = openShop;
+  $id('shopBack').onclick = closeShop;
+  $id('shopClose').onclick = closeShop;
+
+  const tip = $id('tooltip');
+  function showTip(L, px, py) {
+    if (!L) { tip.style.display = 'none'; return; }
+    const coming = !L.pages.length;
+    tip.innerHTML = `<b>NIVEL ${L.n} · ${L.name}</b><br>${coming ? '<span class="lock">PRÓXIMAMENTE</span>' : (L.read ? '✔ ya leído' : 'toca para leer el cómic')}`;
+    tip.style.display = 'block'; tip.style.left = px + 'px'; tip.style.top = py + 'px';
+  }
+
+  function banner(L, txt) {
+    $id('bnL').textContent = 'NIVEL ' + L.n; $id('bnB').textContent = txt || L.name;
+    const b = $id('banner'); b.classList.add('show'); setTimeout(() => b.classList.remove('show'), 1600);
+  }
+
+  // --- visor de cómic ---
+  let comicPages = [], cIdx = 0, curLevel = null;
+  function enterLevel(L) {
+    if (!L.pages.length) { banner(L, 'PRÓXIMAMENTE'); return; }
+    curLevel = L; banner(L);
+    setTimeout(() => openComic(L.pages), 650);
+  }
+  function openComic(pages) { comicPages = pages.slice(); cIdx = 0; renderComic(); $id('comic').classList.add('on'); MexAudio.music('reader'); }
+  function renderComic() {
+    const img = $id('comicImg'); img.src = comicPages[cIdx];
+    $id('cPage').textContent = (cIdx + 1) + '/' + comicPages.length;
+  }
+  function marcarLeido() {
+    if (curLevel && !curLevel.read) { curLevel.read = true; readSet[curLevel.n] = 1; localStorage.setItem(READ_KEY, JSON.stringify(readSet)); updProgreso(); }
+  }
+  $id('cPrev').onclick = () => { if (cIdx > 0) { cIdx--; renderComic(); MexAudio.sfxPage(); } };
+  $id('cNext').onclick = () => { if (cIdx < comicPages.length - 1) { cIdx++; renderComic(); MexAudio.sfxPage(); } else { marcarLeido(); closeComic(); } };
+  $id('cClose').onclick = () => { marcarLeido(); closeComic(); };
+  function closeComic() { $id('comic').classList.remove('on'); MexAudio.music('map'); }
+
+  // --- controles táctiles ---
+  ['padL', 'padR'].forEach(id => {
+    const el = $id(id);
+    ['pointerdown'].forEach(ev => el.addEventListener(ev, e => { e.preventDefault(); MexWorld.setKey(id, true); }));
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => el.addEventListener(ev, () => MexWorld.setKey(id, false)));
+  });
+  $id('padA').addEventListener('pointerdown', e => {
+    e.preventDefault();
+    const h = MexWorld.hero, n = LEVELS.find(L => Math.abs(MexWorld.nodeX(L.n) - h.x) < 40);
+    if (n) enterLevel(n);
+  });
+})();
+</script>
+
+<!-- ============ CONTADOR DE VISITAS (ojito, compartido con Mundo Simz) ============ -->
+<script>
+(function () {
+  var NS = 'mexacartoon-rios', KEY = 'total';
+  var BASE = 300;   // arranque base (respeta las visitas que ya traía la página). El total real se SUMA a esto.
+  var HIT_URL = 'https://abacus.jasoncameron.dev/hit/' + NS + '/' + KEY;
+  var GET_URL = 'https://abacus.jasoncameron.dev/get/' + NS + '/' + KEY;
+  var numEl = document.getElementById('visNum'), eyeEl = document.getElementById('visEye');
+  if (!numEl) return;
+  function fmt(n) { return (n || 0).toLocaleString('es-MX'); }
+  function pintar(n) { numEl.textContent = fmt((n || 0) + BASE); }
+  if (eyeEl) setInterval(function () { if (Math.random() < 0.5) { eyeEl.classList.add('blink'); setTimeout(function () { eyeEl.classList.remove('blink'); }, 140); } }, 2600);
+  var LK = 'mexacartoon.visitas.fallback';
+  function localBump() { var n = (parseInt(localStorage.getItem(LK) || '0', 10) || 0); if (!sessionStorage.getItem('vis.contado')) { n++; localStorage.setItem(LK, n); sessionStorage.setItem('vis.contado', '1'); } return n; }
+  var yaContado = sessionStorage.getItem('vis.contado');
+  fetch(yaContado ? GET_URL : HIT_URL, { cache: 'no-store' })
+    .then(function (r) { return r.json(); })
+    .then(function (d) { var n = (d && (d.value != null ? d.value : d.count)); if (n == null) throw 0; sessionStorage.setItem('vis.contado', '1'); pintar(n); })
+    .catch(function () { pintar(localBump()); });
+})();
+</script>
+</body>
+</html>
