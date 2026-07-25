@@ -1,0 +1,24 @@
+# Cloudflare Pages — cabeceras del sitio
+#
+# Solo el HTML y los JSON de estado se revalidan en cada visita. Así, cuando
+# publicas una actualización, quien ya había entrado antes ve la versión nueva
+# sin tener que vaciar la caché del navegador.
+# Las imágenes NO se tocan: siguen cacheándose como siempre.
+
+/
+  Cache-Control: no-cache
+
+/index.html
+  Cache-Control: no-cache
+
+/admin.html
+  Cache-Control: no-cache
+
+/temporadas.json
+  Cache-Control: no-cache
+
+/productos.json
+  Cache-Control: no-cache
+
+/personajes.json
+  Cache-Control: no-cache

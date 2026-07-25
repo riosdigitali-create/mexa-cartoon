@@ -4,31 +4,39 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0b0f2a">
-<title>SÚPER HÉROES CDMX — El Barrio</title>
+<title>MEXA CARTOON — El Barrio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Bangers&display=swap" rel="stylesheet">
 <style>
-  :root{--pix:'Press Start 2P',monospace;--gold:#ffd23f;--gold2:#ff9f1c;--rojo:#e0342a;--verde:#1f9e4d;--neon:#ff2e88;}
+  :root{
+    --ink:#0b0f2a; --ink2:#151a3d;
+    --pix:'Press Start 2P','Courier New',monospace;
+    --toon:'Bangers',Impact,system-ui,sans-serif;
+    --gold:#ffd23f; --gold2:#ff9f1c; --rojo:#e0342a; --red:#ff3b3b;
+    --verde:#1f9e4d; --green:#4ade80; --cyan:#3fd0ff; --neon:#ff2e88;
+  }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none;}
   html,body{height:100%;overflow:hidden;background:#05060f;color:#fff;font-family:var(--pix);}
+  body{overscroll-behavior:none;}
+  .hidden{display:none !important}
 
-  /* ---------- pantalla de selección ---------- */
-  #select{position:fixed;inset:0;z-index:30;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    text-align:center;padding:18px;background:radial-gradient(circle at 50% 6%,#2a0f3d,#0b0616 60%,#05060f);}
-  #select h1{font-family:'Bangers',cursive;font-size:clamp(20px,6vw,40px);letter-spacing:1px;
-    color:#fff;text-shadow:0 0 10px var(--neon),0 0 20px var(--neon);margin-bottom:4px;}
-  #select .s{font-size:8px;color:#3fd0ff;text-shadow:0 0 6px #3fd0ff;margin-bottom:22px;line-height:1.7;}
-  .picks{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:24px;}
-  .pick{width:150px;background:#1c0f2b;border:3px solid #3a1e57;border-radius:16px;padding:10px;cursor:pointer;transition:.15s;}
-  .pick img{height:150px;display:block;margin:0 auto 8px;filter:drop-shadow(3px 4px 0 rgba(0,0,0,.4));image-rendering:auto;}
-  .pick .n{font-size:8px;line-height:1.5;color:#cbb6e6;}
-  .pick.on{border-color:var(--neon);box-shadow:0 0 18px rgba(255,46,136,.6);background:#2a1240;transform:translateY(-4px);}
-  .pick.on .n{color:#fff;}
-  .startbtn{font-family:'Bangers',cursive;font-size:26px;color:#3a0016;cursor:pointer;
-    background:radial-gradient(circle at 40% 30%,#ffe08a,var(--gold) 55%,#b8890a);border:none;border-radius:44px;
-    padding:12px 34px;box-shadow:0 8px 0 #7a5a06,0 10px 18px rgba(0,0,0,.5);}
-  .startbtn:active{transform:translateY(5px);box-shadow:0 3px 0 #7a5a06;}
-  @media(max-width:560px){.pick{width:40vw;}.pick img{height:34vw;}}
+  /* ---------- botones (mismos de la página anterior) ---------- */
+  .pixbtn{
+    font-family:var(--pix);font-size:12px;letter-spacing:1px;color:#2b1600;
+    background:linear-gradient(180deg,var(--gold) 0%,var(--gold2) 100%);
+    border:0;padding:14px 20px;cursor:pointer;position:relative;
+    box-shadow:0 0 0 3px #2b1600, 0 6px 0 0 #a35d00, 0 6px 0 3px #2b1600;
+    transition:transform .06s ease, box-shadow .06s ease;
+  }
+  .pixbtn:active{transform:translateY(4px);box-shadow:0 0 0 3px #2b1600,0 2px 0 0 #a35d00,0 2px 0 3px #2b1600}
+  .pixbtn.big{font-size:16px;padding:20px 28px}
+  .pixbtn.ghost{background:linear-gradient(180deg,#3a4bb5,#222b6e);color:#fff;
+    box-shadow:0 0 0 3px #0b0f2a,0 5px 0 0 #131a52,0 5px 0 3px #0b0f2a}
+  .iconbtn{font-family:var(--pix);font-size:12px;background:rgba(10,14,42,.85);color:#fff;
+    border:2px solid rgba(255,255,255,.35);border-radius:6px;width:38px;height:38px;cursor:pointer;
+    display:inline-flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);text-decoration:none;}
+  .iconbtn:hover{border-color:var(--gold);color:var(--gold)}
+  .admin-link{opacity:.5} .admin-link:hover{opacity:1}
 
   /* ---------- mundo ---------- */
   #game{position:fixed;inset:0;background:#0b0f2a;display:none;}
@@ -41,23 +49,23 @@
   .badge{font-size:10px;background:rgba(10,14,42,.85);border:2px solid rgba(255,255,255,.3);
     border-radius:6px;padding:9px 12px;letter-spacing:1px;backdrop-filter:blur(4px);}
   .badge.small{font-size:8px;color:var(--gold);border-color:rgba(255,210,63,.4);}
-  .iconbtn{font-family:var(--pix);font-size:12px;background:rgba(10,14,42,.85);color:#fff;border:2px solid rgba(255,255,255,.3);
-    border-radius:6px;padding:8px 10px;cursor:pointer;text-decoration:none;display:inline-flex;}
 
   .tooltip{position:fixed;z-index:12;pointer-events:none;background:rgba(10,14,42,.95);
     border:2px solid var(--gold);border-radius:6px;padding:8px 10px;font-size:8px;line-height:1.7;
     transform:translate(-50%,-130%);white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.6);}
-  .tooltip b{color:var(--gold);} .tooltip .lock{color:var(--rojo);}
+  .tooltip b{color:var(--gold);} .tooltip .lock{color:var(--red);}
 
-  #touchpad{position:fixed;bottom:16px;left:0;right:0;display:none;justify-content:center;gap:16px;z-index:11;}
-  .dpad{width:66px;height:66px;border-radius:50%;font-family:var(--pix);font-size:16px;
+  #touchpad{position:fixed;bottom:14px;left:0;right:0;display:none;justify-content:center;gap:14px;z-index:11;}
+  .dpad{width:64px;height:64px;border-radius:50%;font-family:var(--pix);font-size:16px;
     background:rgba(10,14,42,.8);color:#fff;border:3px solid rgba(255,255,255,.35);backdrop-filter:blur(6px);}
   .dpad:active{background:var(--gold);color:#2b1600;}
   @media (hover:none) and (pointer:coarse){#touchpad{display:flex;}}
 
   /* ---------- contador de visitas (ojito) ---------- */
   #visitas{position:fixed;left:12px;top:64px;z-index:11;pointer-events:none;
-    display:flex;flex-direction:column;align-items:center;gap:4px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.5));}
+    display:flex;flex-direction:column;align-items:center;gap:4px;
+    filter:drop-shadow(0 4px 10px rgba(0,0,0,.5));animation:visPop .5s ease;}
+  @keyframes visPop{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
   #visitas .eye{width:62px;height:36px;border-radius:50%;background:#fff;position:relative;
     border:3px solid #0b0f2a;box-shadow:inset 0 -3px 0 rgba(0,0,0,.12);}
   #visitas .eye::before{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
@@ -73,18 +81,60 @@
   #visitas .bub .num{font-size:15px;color:#c47f0a;margin-top:2px;display:block;}
   @media (max-width:520px){#visitas .eye{width:52px;height:30px;}#visitas .bub{max-width:130px;}#visitas .bub .num{font-size:13px;}}
 
-  /* ---------- visor de cómic ---------- */
-  .overlay{position:fixed;inset:0;z-index:60;display:none;flex-direction:column;align-items:center;justify-content:center;
-    background:rgba(4,3,12,.95);text-align:center;padding:16px;}
-  .overlay.on{display:flex;}
-  #comic{background:rgba(0,0,0,.97);}
-  .comicstage{flex:1;display:flex;align-items:center;justify-content:center;width:100%;overflow:hidden;}
-  .comicstage img{max-width:96%;max-height:78vh;border:3px solid #222;border-radius:6px;box-shadow:0 8px 40px rgba(0,0,0,.7);image-rendering:auto;}
-  .comicnav{display:flex;align-items:center;justify-content:center;gap:12px;padding:12px;flex-wrap:wrap;}
-  .comicnav .pg{font-size:9px;color:#cbb6e6;min-width:64px;}
-  .obtn{font-family:'Bangers',cursive;font-size:20px;color:#111;background:#3fd0ff;border:3px solid #fff;border-radius:40px;
-    padding:9px 20px;cursor:pointer;box-shadow:3px 4px 0 rgba(0,0,0,.4);}
-  .obtn.pink{background:var(--neon);color:#fff;} .obtn:active{transform:translateY(3px);}
+  /* ---------- cinemática (idéntica a la página anterior) ---------- */
+  #cinema{position:fixed;inset:0;z-index:30;pointer-events:none;}
+  #cinema .bar{position:absolute;left:0;right:0;height:14vh;background:#000;transition:height .5s ease;}
+  #cinema .bar.top{top:0} #cinema .bar.bottom{bottom:0}
+  .cinema-title{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;
+    font-family:var(--toon);font-size:clamp(30px,7vw,72px);color:#fff;letter-spacing:3px;
+    text-shadow:0 5px 0 #2b1600,0 0 30px rgba(255,210,63,.6);opacity:0;transition:opacity .6s ease;}
+  .cinema-title.show{opacity:1}
+
+  /* ---------- lector / visualizador (idéntico a la página anterior) ---------- */
+  #reader{position:fixed;inset:0;z-index:40;display:flex;flex-direction:column;
+    background:radial-gradient(circle at 50% 0%,#1a2050,#080a1c 70%);}
+  .reader-top,.reader-bottom{display:flex;align-items:center;gap:12px;padding:10px 14px;
+    background:rgba(6,8,20,.9);border-bottom:2px solid rgba(255,255,255,.1);z-index:2;}
+  .reader-bottom{border-bottom:0;border-top:2px solid rgba(255,255,255,.1);}
+  /* única diferencia pedida: el texto MAPA en verde */
+  #readerBack{color:var(--green);}
+  .reader-title{flex:1;text-align:center;font-size:11px;color:var(--gold);letter-spacing:2px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .reader-tools{display:flex;align-items:center;gap:6px;font-size:8px;color:#9fb0ff;}
+  .reader-stage{flex:1;overflow-y:auto;overflow-x:hidden;display:block;padding:20px 10px 30px;
+    scroll-behavior:smooth;background-image:radial-gradient(rgba(255,255,255,.05) 1px,transparent 1px);
+    background-size:16px 16px;}
+  .pages{display:block;width:100%;margin:0 auto;--ancho:880px;}
+  .page{position:relative;max-width:min(var(--ancho),100%);width:100%;margin:0 auto 26px;flex:none;
+    transition:opacity .4s ease;opacity:1;background:#0d0d16;border-radius:4px;content-visibility:auto;}
+  .page:last-child{margin-bottom:0}
+  .page .err{display:block;padding:26px;text-align:center;font-size:9px;line-height:2;color:#ff6b6b;
+    border:2px dashed #ff6b6b;border-radius:6px;background:#1a0d0d;word-break:break-all;}
+  .page.in{opacity:1;transform:none}
+  .page img{width:100%;height:auto;display:block;max-width:100%;border-radius:4px;background:#111;
+    box-shadow:0 18px 50px rgba(0,0,0,.7),0 0 0 3px rgba(255,255,255,.12);}
+  .page .num{position:absolute;bottom:-20px;right:2px;font-size:8px;color:#6d7bbf}
+  .tanda-mas{display:block;margin:30px auto 10px;font-size:11px;padding:16px 22px;cursor:pointer}
+  .tanda-fin{text-align:center;margin:34px auto 6px;font-size:10px;letter-spacing:2px;color:var(--gold)}
+  .page:not(.loaded){background:linear-gradient(100deg,#0d0d16 30%,#1c1c2e 50%,#0d0d16 70%) #0d0d16;
+    background-size:220% 100%;animation:sk 1.2s ease-in-out infinite;}
+  @keyframes sk{0%{background-position:180% 0}100%{background-position:-80% 0}}
+  @media(prefers-reduced-motion:reduce){.page:not(.loaded){animation:none}}
+  .navbtn{font-family:var(--pix);font-size:14px;background:rgba(255,255,255,.08);color:#fff;
+    border:2px solid rgba(255,255,255,.25);border-radius:8px;padding:12px 16px;cursor:pointer;}
+  .navbtn:hover{border-color:var(--gold);color:var(--gold)}
+  .navbtn:disabled{opacity:.35;cursor:default}
+  .progress-wrap{flex:1}
+  .progress-bar{height:10px;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.25);
+    border-radius:6px;overflow:hidden;}
+  .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--gold2),var(--gold));
+    transition:width .3s ease;box-shadow:0 0 12px rgba(255,210,63,.8);}
+  .progress-text{display:flex;justify-content:space-between;font-size:8px;color:#9fb0ff;margin-top:7px}
+
+  /* ---------- toast ---------- */
+  .toast{position:fixed;bottom:96px;left:50%;transform:translateX(-50%);z-index:70;
+    background:rgba(10,14,42,.95);border:2px solid var(--red);border-radius:6px;padding:12px 16px;
+    font-size:9px;color:#fff;letter-spacing:1px;box-shadow:0 10px 30px rgba(0,0,0,.6);}
 
   /* banner de nivel al entrar */
   #banner{position:fixed;top:24%;left:50%;transform:translate(-50%,-16px);z-index:45;text-align:center;
@@ -94,38 +144,63 @@
   #banner .l{font-size:9px;color:var(--gold);text-shadow:0 0 6px var(--gold);}
   #banner .b{font-family:'Bangers',cursive;font-size:30px;margin-top:6px;}
 
-  .ziv-credito{position:fixed;bottom:6px;right:10px;z-index:6;font-family:var(--pix);font-size:8px;letter-spacing:.5px;
-    color:#fff;opacity:.3;text-decoration:none;background:rgba(0,0,0,.4);padding:4px 8px;border-radius:5px;}
+  .ziv-credito{position:fixed;bottom:6px;right:10px;z-index:6;font-family:var(--pix);font-size:8px;
+    letter-spacing:.5px;color:#fff;opacity:.3;text-decoration:none;background:rgba(0,0,0,.4);
+    padding:4px 8px;border-radius:5px;transition:opacity .2s;backdrop-filter:blur(2px);}
+  .ziv-credito:hover{opacity:1;color:var(--gold)}
   @media(max-width:640px){.ziv-credito{font-size:7px;padding:3px 6px;bottom:4px;right:6px;}}
 
-  /* ---------- pantalla de TÍTULO (boot) estilo Mundo Simz ---------- */
-  #boot{position:fixed;inset:0;z-index:40;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  /* ---------- pantalla de TÍTULO (boot) ---------- */
+  #boot{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;
     text-align:center;padding:22px;overflow:hidden;
     background:radial-gradient(circle at 50% 12%,#123a52,#0b0616 58%,#05060f);}
   #boot .stars{position:absolute;inset:0;pointer-events:none;opacity:.5;
     background:radial-gradient(1px 1px at 20% 30%,#fff,transparent),radial-gradient(1px 1px at 70% 20%,#bfe9ff,transparent),
     radial-gradient(1px 1px at 40% 70%,#fff,transparent),radial-gradient(1px 1px at 85% 60%,#ffd23f,transparent),
     radial-gradient(1px 1px at 60% 85%,#fff,transparent),radial-gradient(1px 1px at 10% 80%,#3fd0ff,transparent);}
-  /* ícono MC: M verde + C roja, como el avatar de Instagram */
   .mc-badge{font-family:'Bangers',cursive;font-size:clamp(64px,20vw,150px);line-height:.8;letter-spacing:-2px;
     filter:drop-shadow(0 6px 0 rgba(0,0,0,.4));animation:mcbob 3s ease-in-out infinite;}
   .mc-badge .m{color:#1f9e4d;text-shadow:0 0 18px rgba(31,158,77,.7),0 5px 0 #0c5a2b;}
   .mc-badge .c{color:#e0342a;text-shadow:0 0 18px rgba(224,52,42,.7),0 5px 0 #7a140f;margin-left:-.06em;}
   @keyframes mcbob{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-8px) rotate(1deg)}}
-  #boot .title{font-family:'Bangers',cursive;font-size:clamp(30px,9vw,72px);letter-spacing:3px;margin-top:6px;color:#fff;}
-  #boot .title .a{color:#1f9e4d} #boot .title .b{color:#fff} #boot .title .d{color:#e0342a}
-  #boot .title{text-shadow:0 0 22px rgba(255,255,255,.25),0 5px 0 #05060f;}
+  #boot .title{font-family:'Bangers',cursive;font-size:clamp(30px,9vw,72px);letter-spacing:3px;margin-top:6px;color:#fff;
+    text-shadow:0 0 22px rgba(255,255,255,.25),0 5px 0 #05060f;}
+  #boot .title .a{color:#1f9e4d} #boot .title .d{color:#e0342a}
   #boot .tag{font-size:9px;color:#3fd0ff;text-shadow:0 0 8px #3fd0ff;margin-top:12px;line-height:2;max-width:520px;}
-  #boot .pixbtn{font-family:'Bangers',cursive;font-size:26px;color:#3a0016;cursor:pointer;margin-top:26px;
-    background:radial-gradient(circle at 40% 30%,#ffe08a,var(--gold) 55%,#b8890a);border:none;border-radius:44px;
-    padding:12px 34px;box-shadow:0 8px 0 #7a5a06,0 10px 18px rgba(0,0,0,.5);}
-  #boot .pixbtn:active{transform:translateY(5px);box-shadow:0 3px 0 #7a5a06;}
+  #boot .pixbtn{margin-top:26px}
   #boot .hint{font-size:8px;color:#8f7fb8;margin-top:16px;line-height:1.9;}
   #boot .scan{position:absolute;inset:0;pointer-events:none;opacity:.35;
     background:repeating-linear-gradient(0deg,rgba(0,0,0,.35) 0 2px,transparent 2px 5px);}
-  #boot.hidden{display:none;}
+
+  /* ---------- selector de personaje (sprites pixel art animados) ---------- */
+  #chooser{position:fixed;inset:0;z-index:55;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;gap:22px;padding:24px 14px;overflow-y:auto;
+    background:radial-gradient(circle at 50% 6%,#2a0f3d,#0b0616 60%,#05060f);}
+  #chooser h2{font-family:var(--toon);font-size:clamp(28px,7vw,54px);color:var(--gold);letter-spacing:2px;
+    text-shadow:0 5px 0 #a35d00,0 8px 0 #2b1600;text-align:center;}
+  #chooser .sub{font-size:8px;color:#3fd0ff;text-shadow:0 0 6px #3fd0ff;text-align:center;margin-top:-10px;line-height:2;}
+  .avatars{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;width:100%;max-width:760px;}
+  .av-card{flex:1 1 190px;max-width:230px;min-width:150px;cursor:pointer;text-align:center;padding:16px 10px;
+    border-radius:10px;background:linear-gradient(180deg,#1c0f2b,#0d1130);
+    border:3px solid rgba(255,255,255,.18);transition:.15s;}
+  .av-card:hover,.av-card.on{border-color:var(--gold);transform:translateY(-6px);
+    box-shadow:0 12px 32px rgba(0,0,0,.6),0 0 26px rgba(255,210,63,.35);}
+  .av-card canvas{width:110px;height:120px;image-rendering:pixelated;display:block;margin:0 auto 10px;
+    background:radial-gradient(circle at 50% 70%,rgba(255,210,63,.18),transparent 65%);}
+  .av-card .n{font-size:9px;color:var(--gold);letter-spacing:1px;line-height:1.8}
+  .av-card .d{font-size:7px;color:#9fb0ff;margin-top:8px;line-height:1.9}
+  @media(max-width:640px){
+    .avatars{gap:10px}
+    .av-card{flex:1 1 100px;min-width:100px;padding:12px 6px}
+    .av-card canvas{width:78px;height:86px}
+    .av-card .n{font-size:7px}
+    .av-card .d{display:none}
+  }
 
   /* ---------- TIENDA (overlay) ---------- */
+  .overlay{position:fixed;inset:0;z-index:60;display:none;flex-direction:column;align-items:center;justify-content:center;
+    background:rgba(4,3,12,.95);text-align:center;padding:16px;}
+  .overlay.on{display:flex;}
   #shop.overlay{background:radial-gradient(circle at 50% 0%,rgba(255,46,136,.22),transparent 55%),
     repeating-linear-gradient(90deg,#1b1030 0 40px,#170e2a 40px 80px);}
   .shop-wrap{width:100%;max-width:1000px;height:100%;display:flex;flex-direction:column;padding:14px 12px;}
@@ -138,7 +213,8 @@
     background:linear-gradient(180deg,#3a2414,#241207);box-shadow:inset 0 0 60px rgba(0,0,0,.7);}
   .shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;}
   .scard{position:relative;aspect-ratio:3/4;border-radius:6px;overflow:hidden;cursor:pointer;
-    background:linear-gradient(180deg,#2b2050,#150e2b);border:3px solid #ffd23f55;display:flex;align-items:center;justify-content:center;transition:.2s;}
+    background:linear-gradient(180deg,#2b2050,#150e2b);border:3px solid #ffd23f55;
+    display:flex;align-items:center;justify-content:center;transition:.2s;}
   .scard:hover{transform:translateY(-5px) rotate(-1deg);border-color:var(--gold);box-shadow:0 12px 26px rgba(0,0,0,.6);}
   .scard img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
   .scard.locked img{filter:blur(9px) brightness(.45);}
@@ -150,10 +226,26 @@
   .scard .label .price{display:block;color:#fff;margin-top:5px;font-size:8px;}
   .scard .tag{position:absolute;top:7px;left:7px;font-size:6px;padding:4px 6px;border-radius:4px;
     background:#0b0f2acc;border:1px solid var(--gold);color:var(--gold);}
+  .obtn{font-family:'Bangers',cursive;font-size:20px;color:#111;background:#3fd0ff;border:3px solid #fff;
+    border-radius:40px;padding:9px 20px;cursor:pointer;box-shadow:3px 4px 0 rgba(0,0,0,.4);}
+  .obtn.pink{background:var(--neon);color:#fff;} .obtn:active{transform:translateY(3px);}
   .shop-neon{text-align:center;margin-top:10px;font-size:8px;letter-spacing:2px;color:#ff6ec7;
     text-shadow:0 0 10px var(--neon);animation:neon 2.6s infinite;}
   @keyframes neon{0%,100%{opacity:1}50%{opacity:.45}}
   @media(max-width:640px){.shop-grid{grid-template-columns:repeat(2,1fr);gap:10px;}.shelfbox{padding:10px;}}
+
+  /* ===== móvil ===== */
+  @supports(padding:max(0px)){
+    #hud{padding-top:max(12px,env(safe-area-inset-top))}
+    #touchpad{bottom:max(14px,env(safe-area-inset-bottom))}
+  }
+  @media(max-width:640px){
+    .reader-title{font-size:8px}
+    .reader-top,.reader-bottom{padding:8px}
+    .iconbtn{width:34px;height:34px;font-size:10px}
+    .badge{font-size:8px;padding:7px 9px}
+    .progress-text{font-size:7px}
+  }
 </style>
 </head>
 <body>
@@ -164,33 +256,34 @@
   <div class="mc-badge"><span class="m">M</span><span class="c">C</span></div>
   <h1 class="title"><span class="a">MEXA</span> <span class="d">CARTOON</span></h1>
   <p class="tag">🇲🇽 Historieta mexicana de ciencia ficción · Camina por el barrio, elige a tu héroe y lee cada temporada.</p>
-  <button id="bootStart" class="pixbtn">▶ ENTRAR</button>
-  <p class="hint">Usa <b>← →</b> o toca la pantalla · Mejor con sonido 🔊</p>
+  <button id="bootStart" class="pixbtn big">▶ ENTRAR</button>
+  <p class="hint">Usa <b>← →</b> o toca la pantalla · <b>A</b> para interactuar · Mejor con sonido 🔊</p>
   <div class="scan"></div>
 </div>
 
-<!-- ============ SELECCIÓN DE HÉROE ============ -->
-<section id="select" style="display:none">
-  <h1>★ SÚPER HÉROES DE LA CDMX ★</h1>
-  <div class="s">ELIGE TU HÉROE · CAMINA POR EL BARRIO<br>Y ENTRA A CADA NIVEL A LEER EL CÓMIC</div>
-  <div class="picks" id="picks"></div>
-  <button class="startbtn" id="enterBtn">▶ ENTRAR AL MUNDO</button>
-</section>
+<!-- ============ SELECCIÓN DE HÉROE (sprites pixel art animados) ============ -->
+<div id="chooser" class="hidden">
+  <h2>★ ELIGE TU HÉROE ★</h2>
+  <p class="sub">CAMINA POR EL BARRIO Y ENTRA A CADA NIVEL A LEER EL CÓMIC</p>
+  <div class="avatars" id="avatars"></div>
+  <button class="pixbtn" id="avatarGo">▶ ENTRAR AL MUNDO</button>
+</div>
 
 <!-- ============ MUNDO ============ -->
 <div id="game">
   <canvas id="world"></canvas>
   <div id="hud">
     <div class="hud-left">
-      <div class="badge" id="badgeTitle">CDMX HÉROES</div>
+      <div class="badge" id="badgeTitle">MEXA CARTOON</div>
       <div class="badge small" id="badgeProgress">Progreso 0%</div>
     </div>
     <div class="hud-right">
       <button class="iconbtn" id="btnShop" title="Tienda">🛒</button>
-      <button class="iconbtn" id="btnSound" title="Sonido">🔊</button>
       <button class="iconbtn" id="btnHero" title="Cambiar héroe">🦸</button>
+      <button class="iconbtn" id="btnSound" title="Sonido">🔊</button>
+      <button class="iconbtn" id="btnDayNight" title="Día / Noche">☀</button>
       <button class="iconbtn" id="btnFull" title="Pantalla completa">⛶</button>
-      <a class="iconbtn" href="admin.html" title="Panel de administración">⚙</a>
+      <a class="iconbtn admin-link" href="admin.html" title="Panel de administración">⚙</a>
     </div>
   </div>
 
@@ -200,7 +293,7 @@
     <div class="bub"><span class="lbl">JUGADORES QUE<br>HAN LEÍDO</span><span class="num" id="visNum">···</span></div>
   </div>
 
-  <div id="tooltip" class="tooltip" style="display:none"></div>
+  <div id="tooltip" class="tooltip hidden"></div>
 
   <div id="touchpad">
     <button class="dpad" id="padL">◀</button>
@@ -211,14 +304,37 @@
   <div id="banner"><div class="l" id="bnL">NIVEL 1</div><div class="b" id="bnB">TEPITO</div></div>
 </div>
 
-<!-- ============ VISOR DE CÓMIC ============ -->
-<div id="comic" class="overlay">
-  <div class="comicstage"><img id="comicImg" src="" alt="Cómic"></div>
-  <div class="comicnav">
-    <button class="obtn" id="cPrev">‹</button>
-    <span class="pg" id="cPage">1/1</span>
-    <button class="obtn" id="cNext">›</button>
-    <button class="obtn pink" id="cClose">CERRAR ✕</button>
+<!-- ============ CINEMÁTICA ============ -->
+<div id="cinema" class="hidden">
+  <div class="bar top"></div>
+  <div class="bar bottom"></div>
+  <div id="cinemaTitle" class="cinema-title"></div>
+</div>
+
+<!-- ============ VISUALIZADOR (lector de cómic y de postales) ============ -->
+<div id="reader" class="hidden">
+  <div class="reader-top">
+    <button class="pixbtn ghost" id="readerBack">◀ MAPA</button>
+    <div class="reader-title" id="readerTitle">NIVEL 1</div>
+    <div class="reader-tools">
+      <button class="iconbtn" id="zoomOut">－</button>
+      <span id="zoomLabel">100%</span>
+      <button class="iconbtn" id="zoomIn">＋</button>
+      <button class="iconbtn" id="readerFull">⛶</button>
+    </div>
+  </div>
+
+  <div class="reader-stage" id="readerStage">
+    <div class="pages" id="pages"></div>
+  </div>
+
+  <div class="reader-bottom">
+    <button class="navbtn" id="prevPage">◀</button>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-text"><span id="pageLabel">1 / 1</span><span id="pctLabel">0%</span></div>
+    </div>
+    <button class="navbtn" id="nextPage">▶</button>
   </div>
 </div>
 
@@ -236,20 +352,24 @@
   </div>
 </div>
 
-<div id="stoast" class="tooltip" style="display:none;left:50%;top:auto;bottom:20px;transform:translateX(-50%);"></div>
+<div id="toast" class="toast hidden"></div>
 
-<a class="ziv-credito" href="#" onclick="return false">página creada por Ziv Creativo</a>
+<a class="ziv-credito" href="https://zivcreativo.shop" target="_blank" rel="noopener noreferrer">página creada por Ziv Creativo</a>
 
 <script>
 /* ============================================================
    MEXA CARTOON — motor de audio chiptune (WebAudio, sin archivos)
-   Es el MISMO motor que Mundo Simz: mismas melodías nostálgicas.
+   Es el MISMO motor que la página anterior: mismas melodías,
+   mismos efectos y misma lógica de pista ambiental.
+   Para cambiar la música basta con cambiar la constante MUSICA
+   (más abajo, en el bloque de "glue"). Nada más se toca.
    ============================================================ */
 const MexAudio = (() => {
   let ctx = null, master = null, musicGain = null, sfxGain = null;
   let enabled = true, started = false;
   let loopTimer = null, step = 0, currentTrack = null;
-  let customAudio = null, ambient = null;
+  let customAudio = null;
+  let ambient = null, ambientOk = false;
 
   const NOTE = {};
   (() => {
@@ -314,36 +434,75 @@ const MexAudio = (() => {
     if (step % 4 === 0) noiseTick(0.05);
     step++;
   }
+
   const api = {
-    start() { init(); if (ctx && ctx.state === 'suspended') ctx.resume(); started = true; if (ambient) ambient.play().catch(()=>{}); },
+    customTracks: { map: '', reader: '', shop: '' },
+
+    start() {
+      init();
+      if (ctx && ctx.state === 'suspended') ctx.resume();
+      started = true;
+      if (ambient) ambient.play().catch(() => {});
+    },
+
+    /* pista de fondo propia (archivo de audio): suena en bucle en toda la web.
+       Cambiar de música = cambiar el archivo al que apunta la constante MUSICA. */
     setAmbient(url, vol = 0.5) {
-      ambient = new Audio(url); ambient.loop = true; ambient.preload = 'auto'; ambient.volume = enabled ? vol : 0;
-      ambient.addEventListener('playing', () => { clearInterval(loopTimer); loopTimer = null; });
+      ambient = new Audio(url);
+      ambient.loop = true;
+      ambient.preload = 'auto';
+      ambient.volume = enabled ? vol : 0;
+      ambient.addEventListener('playing', () => {
+        ambientOk = true;
+        clearInterval(loopTimer); loopTimer = null;   // silencia el chiptune
+      });
       ambient.addEventListener('error', () => { ambient = null; api.music('map'); });
-      if (started) ambient.play().catch(()=>{});
+      if (started) ambient.play().catch(() => {});
       return ambient;
     },
+    get hasAmbient() { return !!ambient; },
+
     music(track) {
       if (!started) return;
-      if (ambient) { currentTrack = track; if (ambient.paused) ambient.play().catch(()=>{}); return; }
+      if (ambient) { currentTrack = track; if (ambient.paused) ambient.play().catch(() => {}); return; }
       if (currentTrack === track) return;
-      currentTrack = track; clearInterval(loopTimer); loopTimer = null; step = 0;
+      currentTrack = track;
+      clearInterval(loopTimer); loopTimer = null; step = 0;
+      if (customAudio) { customAudio.pause(); customAudio = null; }
+      const custom = api.customTracks[track];
+      if (custom) {
+        customAudio = new Audio(custom);
+        customAudio.loop = true; customAudio.volume = enabled ? 0.45 : 0;
+        customAudio.play().catch(() => {});
+        return;
+      }
       if (!enabled || !TRACKS[track]) return;
       const spb = 60 / TRACKS[track].bpm / 2 * 1000;
       playStep(track); loopTimer = setInterval(() => playStep(track), spb);
     },
-    stopMusic() { clearInterval(loopTimer); loopTimer = null; currentTrack = null; },
+    stopMusic() {
+      clearInterval(loopTimer); loopTimer = null; currentTrack = null;
+      if (customAudio) { customAudio.pause(); customAudio = null; }
+    },
     toggle() {
       enabled = !enabled;
       if (master) master.gain.value = enabled ? 0.55 : 0;
-      if (ambient) { ambient.volume = enabled ? 0.5 : 0; if (enabled && ambient.paused) ambient.play().catch(()=>{}); }
+      if (customAudio) customAudio.volume = enabled ? 0.45 : 0;
+      if (ambient) { ambient.volume = enabled ? 0.5 : 0; if (enabled && ambient.paused) ambient.play().catch(() => {}); }
       return enabled;
     },
     get enabled() { return enabled; },
+
     sfxSelect() { blip(660, .07); setTimeout(() => blip(880, .09), 60); },
-    sfxEnter() { [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => blip(f, .12), i * 70)); },
-    sfxPage() { noise(0.14, 0.10); blip(320, .05, 'triangle', .12); },
-    sfxCoin() { blip(988, .06); setTimeout(() => blip(1319, .25), 60); }
+    sfxDenied() { blip(180, .12, 'sawtooth', .25); setTimeout(() => blip(120, .18, 'sawtooth', .25), 90); },
+    sfxStep()   { noise(0.05, 0.06); },
+    sfxPage()   { noise(0.14, 0.10); blip(320, .05, 'triangle', .12); },
+    sfxEnter()  { [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => blip(f, .12), i * 70)); },
+    sfxUnlock() {
+      const seq = [523, 659, 784, 1046, 1318, 1046, 1318, 1568];
+      seq.forEach((f, i) => setTimeout(() => { blip(f, .18, 'square', .3); blip(f / 2, .18, 'triangle', .2); }, i * 100));
+    },
+    sfxCoin()   { blip(988, .06); setTimeout(() => blip(1319, .25), 60); }
   };
   return api;
 })();
@@ -351,130 +510,222 @@ const MexAudio = (() => {
 
 <script>
 /* ============================================================
-   SÚPER HÉROES CDMX — mundo pixel art (canvas 2D, procedural)
-   Caminata lateral tranquila al estilo Mundo Simz, temática CDMX:
-   volcanes, pirámide, El Ángel, iglesia, estadio, tianguis,
-   vecindades, papel picado y espectaculares de personajes.
+   MEXA CARTOON — mundo pixel art (canvas 2D, todo procedural)
+   Mismo motor que la página anterior: cámara adaptable (PC + móvil),
+   ciclo día/noche, tráfico, nubes, pájaros, OVNIs, señal nocturna
+   y personajes animados con sprites pixel art.
+   La temática es CDMX: volcanes, pirámide, El Ángel, parroquia,
+   estadio, tianguis, vecindades, papel picado y espectaculares.
    ============================================================ */
 const MexWorld = (() => {
-  const VIEW_W = 480, VIEW_H = 270, GROUND = 196;
-  const NODE_X0 = 300, NODE_GAP = 300, N_LEVELS = 6;
-  const WORLD_W = NODE_X0 + (N_LEVELS - 1) * NODE_GAP + 340;
+
+  const VIEW_W = 480, VIEW_H = 270;   // referencia de diseño
+  const GROUND = 196;                 // acera trasera (pies del personaje)
+  const NODE_X0 = 220, NODE_GAP = 185;
+  const MAX_LEVELS = 20;
+  const WORLD_W = NODE_X0 + (MAX_LEVELS - 1) * NODE_GAP + 320;
 
   let cv, ctx, dpr = 1, scale = 1;
   let viewW = VIEW_W, viewH = VIEW_H, camY = 0;
   let levels = [];
-  let onEnter = () => {}, onHover = () => {};
+  let onEnter = () => {}, onBillboard = () => {}, onHover = () => {};
 
-  const cam = { x: 0, targetX: 0, shake: 0 };
-  const hero = { x: 150, y: GROUND, dir: 1, state: 'idle', frame: 0, t: 0, target: null, onArrive: null };
-  let time = 0, hoverNode = null;
+  const cam = { x: 0, targetX: 0, zoom: 1, targetZoom: 1, shake: 0 };
+  const hero = { x: 150, y: GROUND, dir: 1, state: 'idle', frame: 0, t: 0, target: null, onArrive: null, bob: 0 };
+  let time = 0, dayT = 0.30, dayAuto = true, paused = false, hoverNode = null;
   const keys = {};
-
-  const clouds = [], birds = [], structures = [], props = [], lamps = [], papel = [];
-
-  /* ---------- personajes (cutouts) ---------- */
-  const HERO_IMG = { heroina: 'assets/cutout-heroina.png', capitan: 'assets/cutout-capitan.png', buho: 'assets/cutout-buho.png' };
-  const heroImgs = {};
-  Object.keys(HERO_IMG).forEach(k => { const im = new Image(); im.ok = false; im.onload = () => im.ok = true; im.src = HERO_IMG[k]; heroImgs[k] = im; });
-  let avatar = 'heroina';
-
-  /* espectaculares: los tres héroes deslizándose */
-  const billImgs = ['assets/cutout-capitan.png', 'assets/cutout-heroina.png', 'assets/cutout-buho.png']
-    .map(src => { const im = new Image(); im.ok = false; im.onload = () => im.ok = true; im.src = src; return im; });
-  const easeIO = k => k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
 
   function rng(seed) { let s = seed >>> 0; return () => (s = (s * 1664525 + 1013904223) >>> 0) / 4294967296; }
 
+  const clouds = [], cars = [], birds = [], ufos = [], lamps = [], structures = [], props = [], papel = [], stars = [];
+  let billboards = [], vocho = null;
+
+  /* ---------- espectaculares (los tres héroes deslizándose) ---------- */
+  const BILL_SRCS = ['assets/cutout-capitan.png', 'assets/cutout-heroina.png', 'assets/cutout-buho.png'];
+  const billImgs = BILL_SRCS.map(src => { const im = new Image(); im.ok = false; im.onload = () => im.ok = true; im.src = src; return im; });
+  const easeIO = k => k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+
+  /* banda de cielo visible (se adapta a la altura de la pantalla) */
+  const skyTop = () => -camY + 6;
+  const skyY = yr => skyTop() + yr * Math.max(60, (GROUND - 66) - skyTop());
+
+  /* alto real del espectacular: la señal SIEMPRE se dibuja por encima de esto,
+     así que aunque el panel crezca nunca puede taparla. */
+  const BILL_POST_H = 58, BILL_PANEL_H = 80;
+  const BILL_TOP = GROUND - BILL_POST_H - BILL_PANEL_H - 5;
+
   function buildWorld() {
     const r = rng(20260722);
-    for (let i = 0; i < 12; i++) clouds.push({ x: r() * WORLD_W, yr: r() * .5, s: .6 + r() * 1.1, spd: 2 + r() * 4, w: 26 + r() * 34 });
-    for (let i = 0; i < 8; i++) birds.push({ x: r() * WORLD_W, yr: .12 + r() * .4, spd: 8 + r() * 10, t: r() * 6 });
+    for (let i = 0; i < 14; i++) clouds.push({ x: r() * WORLD_W, yr: r() * .55, s: .6 + r() * 1.1, spd: 2 + r() * 5, w: 26 + r() * 34 });
+    for (let i = 0; i < 110; i++) stars.push({ xr: r(), yr: r() * .8, tw: r() * 6.28 });
 
-    const anchors = [
-      { x: 120, type: 'iglesia', w: 120 },
-      { x: 470, type: 'piramide', w: 150 },
-      { x: 900, type: 'angel', w: 90 },
+    /* ---------- tráfico ---------- */
+    const carCols = ['#e0453c', '#3fa9f5', '#f7c948', '#5ecb7d', '#e678c3', '#ffffff', '#8c6ef2'];
+    for (let i = 0; i < 10; i++) cars.push({
+      x: r() * WORLD_W, lane: i % 2, spd: (14 + r() * 16) * (i % 2 ? -1 : 1),
+      c: carCols[(r() * carCols.length) | 0], w: 26 + ((r() * 3) | 0) * 4
+    });
+    /* easter egg: el Vocho amarillo. No circula siempre — aparece de vez en
+       cuando, cruza la calle y se vuelve a ir. Mismo sistema que los OVNIs. */
+    vocho = { x: -80, lane: 0, spd: 20, w: 30, on: false, next: 18 + r() * 26 };
+
+    for (let i = 0; i < 8; i++) birds.push({ x: r() * WORLD_W, yr: .15 + r() * .45, spd: 8 + r() * 10, t: r() * 6 });
+
+    // OVNIs: cruzan el cielo de vez en cuando, discretos
+    for (let i = 0; i < 3; i++) ufos.push({
+      x: r() * WORLD_W, yr: .05 + r() * .35, spd: (16 + r() * 12) * (i % 2 ? -1 : 1),
+      wob: r() * 6.28, next: 4 + r() * 20, on: false, c: ['#8fd96b', '#3fd0ff', '#e678c3'][i % 3]
+    });
+
+    /* ---------- hitos de la ciudad, repartidos por los 20 niveles ---------- */
+    const landmarks = [
+      { x: 120,  type: 'iglesia',  w: 120 },
+      { x: 470,  type: 'piramide', w: 150 },
+      { x: 900,  type: 'angel',    w: 90  },
       { x: 1300, type: 'tianguis', w: 150 },
-      { x: 1760, type: 'estadio', w: 150 },
-      { x: 2180, type: 'piramide', w: 150 }
+      { x: 1760, type: 'estadio',  w: 150 },
+      { x: 2180, type: 'piramide', w: 150 },
+      { x: 2520, type: 'iglesia',  w: 120 },
+      { x: 2880, type: 'angel',    w: 90  },
+      { x: 3240, type: 'tianguis', w: 150 },
+      { x: 3620, type: 'estadio',  w: 150 },
+      { x: 3960, type: 'piramide', w: 150 }
     ];
-    [360, 1050, 1620, 2060, 2460].forEach((bx, i) => anchors.push({ x: bx, type: 'billboard', w: 74, phase: i * 0.41 }));
+    /* Espectaculares repartidos por la calle, con desfase para que no vayan
+       sincronizados. Se colocan a media distancia entre dos letreros de nivel
+       (~92 px de cada uno) para que ni se solapen visualmente ni compitan con
+       ellos por la tecla A. */
+    [276, 1016, 1571, 1941, 2681, 3051, 3791].forEach((bx, i) =>
+      landmarks.push({ x: bx, type: 'billboard', w: 74, phase: i * 0.37 }));
+    landmarks.forEach(l => structures.push(l));
 
     const wallCols = ['#e0662a', '#3f9f6a', '#d84a6a', '#e0b23a', '#5a7fd0', '#c05ac0', '#4ab0c0', '#d0803a'];
     let x = 24;
     while (x < WORLD_W - 40) {
-      const hit = anchors.find(a => x < a.x + a.w + 16 && x + 88 > a.x - 16);
-      if (hit) { x = hit.x + hit.w + 18; continue; }
+      const hit = landmarks.find(l => x < l.x + l.w + 16 && x + 88 > l.x - 16);
+      if (hit) { x = hit.x + (hit.w || 90) + 18; continue; }
       const w = 64 + ((r() * 3) | 0) * 12, h = 54 + ((r() * 3) | 0) * 10;
       structures.push({ x, type: 'vecindad', w, h, wall: wallCols[(r() * wallCols.length) | 0] });
       x += w + 16 + ((r() * 3) | 0) * 8;
     }
-    anchors.forEach(a => structures.push(a));
     structures.sort((a, b) => a.x - b.x);
+    billboards = structures.filter(s => s.type === 'billboard');
 
     const PT = ['nopal', 'maguey', 'nopal', 'taco', 'poste', 'bote', 'maguey'];
     for (let i = 40; i < WORLD_W; i += 120) {
-      if (anchors.some(a => i > a.x - 20 && i < a.x + (a.w || 0) + 20)) continue;
+      if (landmarks.some(l => i > l.x - 20 && i < l.x + (l.w || 0) + 20)) continue;
       props.push({ x: i + (r() * 40 - 20), t: PT[(r() * PT.length) | 0], s: .8 + r() * .5 });
     }
-    for (let i = 0; i < WORLD_W; i += 150) lamps.push({ x: i + 70 });
+    for (let i = 0; i < WORLD_W; i += 150) lamps.push({ x: i + 60 });
     for (let i = 0; i < WORLD_W; i += 26) papel.push({ x: i, c: ['#ff2e88', '#3fd0ff', '#ffd23f', '#1f9e4d', '#ff7a3d', '#c05ac0'][(i / 26) % 6 | 0] });
   }
 
   const nodeX = n => NODE_X0 + (n - 1) * NODE_GAP;
   function nodeAt(wx, wy) {
-    for (const L of levels) { const nx = nodeX(L.n); if (wx > nx - 30 && wx < nx + 30 && wy > GROUND - 86 && wy < GROUND + 14) return L; }
+    for (const L of levels) { const nx = nodeX(L.n); if (wx > nx - 30 && wx < nx + 30 && wy > GROUND - 82 && wy < GROUND + 14) return L; }
     return null;
+  }
+  /* espectacular más cercano al héroe (detección por colisión, no por clic) */
+  function billboardNear(x, rad = 46) {
+    let best = null, bd = 1e9;
+    billboards.forEach(b => { const d = Math.abs(b.x + (b.w || 74) / 2 - x); if (d < rad && d < bd) { bd = d; best = b; } });
+    return best;
+  }
+  const billAt = (wx, wy) => {
+    const b = billboards.find(b2 => wx > b2.x - 10 && wx < b2.x + (b2.w || 74) + 10 && wy > BILL_TOP - 10 && wy < GROUND);
+    return b || null;
+  };
+
+  /* ---------- día / noche ---------- */
+  const lerp = (a, b, t) => a + (b - a) * t;
+  function mix(c1, c2, t) {
+    const p = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+    const a = p(c1), b = p(c2);
+    return `rgb(${Math.round(lerp(a[0], b[0], t))},${Math.round(lerp(a[1], b[1], t))},${Math.round(lerp(a[2], b[2], t))})`;
+  }
+  const PHASES = [
+    { t: 0.00, top: '#0a0f33', bot: '#1b1f4d', light: 0.22 },
+    { t: 0.22, top: '#2b3a7a', bot: '#f08a5d', light: 0.45 },
+    { t: 0.32, top: '#4aa8ff', bot: '#c8ecff', light: 1.00 },
+    { t: 0.55, top: '#3d9bf5', bot: '#bfe9ff', light: 1.00 },
+    { t: 0.72, top: '#f2703c', bot: '#ffd28a', light: 0.60 },
+    { t: 0.82, top: '#20264f', bot: '#5d3f7a', light: 0.32 },
+    { t: 1.00, top: '#0a0f33', bot: '#1b1f4d', light: 0.22 }
+  ];
+  function sky() {
+    let a = PHASES[0], b = PHASES[PHASES.length - 1];
+    for (let i = 0; i < PHASES.length - 1; i++)
+      if (dayT >= PHASES[i].t && dayT <= PHASES[i + 1].t) { a = PHASES[i]; b = PHASES[i + 1]; break; }
+    const t = (dayT - a.t) / Math.max(0.0001, (b.t - a.t));
+    return { top: mix(a.top, b.top, t), bot: mix(a.bot, b.bot, t), light: lerp(a.light, b.light, t) };
   }
 
   /* ---------- helpers ---------- */
   const P = (x, y, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(x | 0, y | 0, w | 0, h | 0); };
-  function glow(x, y, rad, c) { const g = ctx.createRadialGradient(x, y, 0, x, y, rad); g.addColorStop(0, c + 'aa'); g.addColorStop(1, c + '00'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, rad, 0, 6.29); ctx.fill(); }
-  function label(cx, y, text, color) { ctx.font = '6px "Press Start 2P", monospace'; ctx.textAlign = 'center'; ctx.fillStyle = '#000'; ctx.fillText(text, cx + 1, y + 1); ctx.fillStyle = color; ctx.fillText(text, cx, y); ctx.textAlign = 'left'; }
-  function windows(x, y, cols, rows, gap) { for (let i = 0; i < cols; i++) for (let j = 0; j < rows; j++) P(x + i * gap, y + j * gap, 6, 6, ((i * 3 + j * 7 + (x | 0)) % 5 !== 0) ? '#bfe9ff' : '#22406a'); }
+  function glow(x, y, r, c) {
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, c + 'aa'); g.addColorStop(1, c + '00');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, 6.29); ctx.fill();
+  }
+  function label(cx, y, text, color) {
+    ctx.font = '6px "Press Start 2P", monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = '#000'; ctx.fillText(text, cx + 1, y + 1);
+    ctx.fillStyle = color; ctx.fillText(text, cx, y);
+    ctx.textAlign = 'left';
+  }
+  function drawWindowRow(x, y, cols, rows, lit, gap = 10) {
+    for (let i = 0; i < cols; i++)
+      for (let j = 0; j < rows; j++) {
+        const on = lit && ((i * 3 + j * 7 + (x | 0)) % 5 !== 0);
+        P(x + i * gap, y + j * gap, 6, 6, on ? '#ffe27a' : '#2a3550');
+        if (on) { ctx.globalAlpha = .25; P(x + i * gap - 2, y + j * gap - 2, 10, 10, '#ffe27a'); ctx.globalAlpha = 1; }
+      }
+  }
 
-  /* ---------- edificios ---------- */
-  function drawVecindad(s) {
+  /* ---------- edificios (CDMX) ---------- */
+  function drawVecindad(s, lit) {
     const { x, w, h, wall } = s, y = GROUND - h;
     P(x, y, w, h, wall); P(x, y, w, 3, '#00000033'); P(x - 3, y - 4, w + 6, 5, '#00000055');
-    windows(x + 8, y + 14, Math.max(2, (w - 20) / 12 | 0), 2, 12);
+    drawWindowRow(x + 8, y + 14, Math.max(2, (w - 20) / 12 | 0), 2, lit, 12);
     P(x + w / 2 - 7, GROUND - 20, 14, 20, '#5a3418'); P(x + w / 2 + 2, GROUND - 11, 2, 2, '#ffd23f');
     P(x + w - 20, y - 12, 12, 12, '#2b2b2b'); P(x + w - 20, y - 12, 12, 3, '#444');
     ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x + 6, y + 6); ctx.lineTo(x + w - 6, y + 4); ctx.stroke();
     P(x + 12, y + 6, 4, 7, '#ff2e88'); P(x + 22, y + 6, 4, 8, '#3fd0ff'); P(x + 32, y + 6, 4, 6, '#ffd23f');
   }
-  function drawIglesia(s) {
+  function drawIglesia(s, lit) {
     const { x, w } = s, h = 78, y = GROUND - h;
     P(x, y, w, h, '#e8dcc0'); P(x, y, w, 5, '#c98a3a');
     P(x + w / 2 - 14, y - 22, 28, 22, '#e0a53a'); P(x + w / 2 - 14, y - 22, 28, 4, '#f4c95a');
     P(x + w / 2 - 2, y - 34, 4, 12, '#c98a3a'); P(x + w / 2 - 5, y - 32, 10, 3, '#c98a3a');
-    windows(x + 12, y + 18, 3, 2, 14);
+    drawWindowRow(x + 12, y + 18, 3, 2, lit, 14);
     P(x + w / 2 - 9, GROUND - 26, 18, 26, '#7a4a2b'); P(x + w / 2 - 9, y + 14, 18, 8, '#7a4a2b');
     label(x + w / 2, y + 66, 'PARROQUIA', '#b9432f');
+    if (lit) glow(x + w / 2, y - 24, 26, '#ffd23f');
   }
-  function drawPiramide(s) {
+  function drawPiramide(s, lit) {
     const { x, w } = s, cx = x + w / 2, base = GROUND, top = GROUND - 96;
     for (let i = 0; i < 6; i++) { const t = i / 6, ny = base - i * 15, nh = 15, half = (w / 2) * (1 - t * 0.82); P(cx - half, ny - nh, half * 2, nh, i % 2 ? '#b98a4a' : '#c99a5a'); P(cx - half, ny - nh, half * 2, 3, '#8a6a3a'); }
     P(cx - 8, top + 4, 16, 92, '#8a6a3a');
     for (let i = 0; i < 12; i++) P(cx - 8, top + 8 + i * 8, 16, 3, '#6a4a24');
     P(cx - 14, top - 12, 28, 14, '#c0503a'); P(cx - 14, top - 12, 28, 3, '#e0704a');
     label(cx, GROUND - 104, 'PIRÁMIDE', '#e0b23a');
+    if (lit) glow(cx, top - 6, 30, '#ff7a3d');
   }
-  function drawAngel(s) {
+  function drawAngel(s, lit) {
     const { x, w } = s, cx = x + w / 2;
     P(cx - 16, GROUND - 12, 32, 12, '#cfc7b0'); P(cx - 10, GROUND - 20, 20, 8, '#e9e2cf');
     P(cx - 5, GROUND - 96, 10, 76, '#e9e2cf'); P(cx - 6, GROUND - 96, 12, 5, '#e9e2cf');
     P(cx - 4, GROUND - 116, 8, 10, '#ffd23f'); P(cx - 6, GROUND - 108, 4, 6, '#ffd94a'); P(cx + 2, GROUND - 108, 4, 6, '#ffd94a');
     P(cx - 14, GROUND - 112, 12, 3, '#ffd94a'); P(cx + 2, GROUND - 112, 12, 3, '#ffd94a');
-    glow(cx, GROUND - 112, 20, '#ffd23f'); label(cx, GROUND - 128, 'EL ÁNGEL', '#ffd23f');
+    glow(cx, GROUND - 112, lit ? 28 : 20, '#ffd23f'); label(cx, GROUND - 128, 'EL ÁNGEL', '#ffd23f');
   }
-  function drawTianguis(s) {
+  function drawTianguis(s, lit) {
     const { x, w } = s, cols = ['#ff2e88', '#3fd0ff', '#ffd23f', '#1f9e4d'];
     for (let i = 0; i < 4; i++) { const bx = x + i * (w / 4), bw = w / 4 - 4, y = GROUND - 40; P(bx, y, bw, 40, '#8a5a2a'); P(bx - 2, y - 8, bw + 4, 10, cols[i]); for (let k = 0; k < bw; k += 8) P(bx + k, y - 8, 4, 10, '#ffffff55'); P(bx + 3, y + 6, bw - 6, 8, '#f4e0b0'); }
     label(x + w / 2, GROUND - 52, 'TIANGUIS', '#e0342a');
+    if (lit) glow(x + w / 2, GROUND - 26, 44, '#ff9f1c');
   }
-  function drawEstadio(s) {
+  function drawEstadio(s, lit) {
     const { x, w } = s, cx = x + w / 2;
     ctx.fillStyle = '#8a8f9a'; ctx.beginPath(); ctx.ellipse(cx, GROUND - 14, w / 2, 26, 0, 0, 6.29); ctx.fill();
     ctx.fillStyle = '#2f7a3f'; ctx.beginPath(); ctx.ellipse(cx, GROUND - 14, w / 2 - 12, 17, 0, 0, 6.29); ctx.fill();
@@ -482,9 +733,10 @@ const MexWorld = (() => {
     P(x + 6, GROUND - 40, 4, 20, '#555'); P(x + 2, GROUND - 44, 12, 6, '#333');
     P(x + w - 10, GROUND - 40, 4, 20, '#555'); P(x + w - 14, GROUND - 44, 12, 6, '#333');
     label(cx, GROUND - 48, 'ESTADIO', '#2b8a5a');
+    if (lit) { glow(x + 8, GROUND - 44, 22, '#ffe08a'); glow(x + w - 8, GROUND - 44, 22, '#ffe08a'); }
   }
 
-  /* ---------- espectacular ---------- */
+  /* ---------- espectacular (billboard con personajes que se deslizan) ---------- */
   function drawBillImg(im, bx, by, bw, bh) {
     if (!im || !im.ok) { P((bx + bw * 0.28) | 0, (by + bh * 0.22) | 0, (bw * 0.44) | 0, (bh * 0.7) | 0, '#0d1330'); return; }
     const pad = 5, availH = bh - pad * 2, availW = bw - pad * 2;
@@ -493,22 +745,43 @@ const MexWorld = (() => {
     const dx = bx + (bw - dw) / 2, dy = by + bh - pad - dh;
     ctx.imageSmoothingEnabled = true; ctx.drawImage(im, dx | 0, dy | 0, dw | 0, dh | 0); ctx.imageSmoothingEnabled = false;
   }
-  function drawBillboard(s) {
-    const w = s.w || 74, cx = s.x + w / 2, panelW = 64, panelH = 80, postH = 58;
+  function drawBillboard(s, lit) {
+    const w = s.w || 74, cx = s.x + w / 2;
+    const panelW = 64, panelH = BILL_PANEL_H, postH = BILL_POST_H;
     const px = (cx - panelW / 2) | 0, py = (GROUND - postH - panelH) | 0;
-    P(px + 8, GROUND - postH, 5, postH, '#4a4558'); P(px + panelW - 13, GROUND - postH, 5, postH, '#4a4558');
+    // postes
+    P(px + 8, GROUND - postH, 5, postH, '#4a4558');
+    P(px + panelW - 13, GROUND - postH, 5, postH, '#4a4558');
     P(px + 6, GROUND - postH + 18, panelW - 12, 4, '#3a3550');
-    P(px - 5, py - 5, panelW + 10, panelH + 10, '#141024'); P(px - 3, py - 3, panelW + 6, panelH + 6, '#ffd23f');
+    // marco
+    P(px - 5, py - 5, panelW + 10, panelH + 10, '#141024');
+    P(px - 3, py - 3, panelW + 6, panelH + 6, lit ? '#ffd23f' : '#c9a63a');
     P(px, py, panelW, panelH, '#12183a');
-    const per = 4.2, slideFrac = 0.16, tt = time / per + (s.phase || 0);
-    const idx = Math.floor(tt) % billImgs.length, nxt = (idx + 1) % billImgs.length, frac = tt - Math.floor(tt);
+    // personajes deslizándose (slider automático, igual que la página anterior)
+    const per = 4.2, slideFrac = 0.16;
+    const tt = time / per + (s.phase || 0);
+    const idx = Math.floor(tt) % billImgs.length, nxt = (idx + 1) % billImgs.length;
+    const frac = tt - Math.floor(tt);
     let k = 0; if (frac > 1 - slideFrac) k = easeIO((frac - (1 - slideFrac)) / slideFrac);
-    ctx.save(); ctx.beginPath(); ctx.rect(px, py, panelW, panelH); ctx.clip();
+    ctx.save();
+    ctx.beginPath(); ctx.rect(px, py, panelW, panelH); ctx.clip();
     drawBillImg(billImgs[idx], px - k * panelW, py, panelW, panelH);
     if (k > 0) drawBillImg(billImgs[nxt], px + (1 - k) * panelW, py, panelW, panelH);
     ctx.restore();
+    // foquitos del marco
     for (let i = 4; i < panelW - 2; i += 10) P(px + i, py - 4, 4, 4, (Math.floor(time * 4) + i) % 20 < 10 ? '#ffe27a' : '#ff9f1c');
-    label(cx, py + panelH + 13, '★ HÉROES ★', '#ff6ec7');
+    label(cx, py + panelH + 13, '★ POSTALES ★', lit ? '#ff6ec7' : '#c0468f');
+    if (lit) glow(cx, py + panelH / 2, 42, '#3fd0ff');
+
+    // indicador de interacción (aparece al llegar enfrente, como los demás objetos)
+    if (nearBill === s) {
+      const by2 = py - 22 + Math.sin(time * 3) * 2;
+      P(cx - 11, by2 - 2, 22, 18, '#0b0f2a');
+      P(cx - 9, by2, 18, 14, '#ffd23f');
+      ctx.fillStyle = '#2b1600'; ctx.font = '9px "Press Start 2P", monospace'; ctx.textAlign = 'center';
+      ctx.fillText('A', cx, by2 + 11); ctx.textAlign = 'left';
+      glow(cx, by2 + 7, 22, '#ffd23f');
+    }
   }
 
   /* ---------- props ---------- */
@@ -521,48 +794,33 @@ const MexWorld = (() => {
     else { P(x - 4, GROUND - 12, 8, 12, '#3a6a3a'); P(x - 4, GROUND - 13, 8, 2, '#2a5a2a'); }
   }
 
-  /* ---------- héroe ---------- */
-  function drawHero() {
-    const im = heroImgs[avatar], x = hero.x;
-    ctx.globalAlpha = .28; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(x, GROUND, 12, 4, 0, 0, 6.29); ctx.fill(); ctx.globalAlpha = 1;
-    const walking = hero.state === 'walk';
-    const bob = walking ? -Math.abs(Math.sin(hero.frame * 0.8)) * 3 : Math.sin(time * 3) * 1.2;
-    const rot = walking ? Math.sin(hero.frame * 0.8) * 0.05 : 0;
-    if (!im || !im.ok) { P(x - 8, GROUND - 44, 16, 44, '#444'); return; }
-    const h = 56, w = h * (im.width / im.height || 0.5);
-    ctx.save(); ctx.translate(x, GROUND + bob); ctx.rotate(rot); ctx.scale(hero.dir, 1);
-    ctx.imageSmoothingEnabled = true; ctx.drawImage(im, -w / 2, -h, w, h); ctx.imageSmoothingEnabled = false;
-    ctx.restore();
+  /* ---------- OVNIs (mismo diseño, velocidad, trayectoria y frecuencia) ---------- */
+  function drawUfos(dt, L) {
+    ufos.forEach(u => {
+      if (!u.on) { u.next -= dt; if (u.next <= 0) { u.on = true; u.x = u.spd > 0 ? -40 : WORLD_W + 40; } return; }
+      u.x += u.spd * dt;
+      if (u.x > WORLD_W + 60 || u.x < -60) { u.on = false; u.next = 12 + Math.random() * 30; return; }
+      const y = skyY(u.yr) + Math.sin(time * 1.6 + u.wob) * 4;
+      const sx = u.x - cam.x * 0.5;                    // parallax de cielo
+      if (sx < -40 || sx > viewW + 40) return;
+      ctx.globalAlpha = L > .6 ? .55 : .95;            // discreto de día
+      P(sx - 9, y, 18, 3, '#b9c4d6');                  // platillo
+      P(sx - 6, y - 3, 12, 3, '#8e9bb3');
+      P(sx - 4, y - 6, 8, 3, u.c);                     // cúpula
+      P(sx - 11, y + 3, 22, 1, '#6f7b91');
+      const b = Math.floor(time * 6) % 3;
+      P(sx - 7 + b * 6, y + 4, 2, 2, u.c);             // luces parpadeantes
+      if (L < .6) glow(sx, y + 4, 12, u.c);
+      ctx.globalAlpha = 1;
+    });
   }
 
-  /* ---------- letreros de nivel ---------- */
-  function drawNode(L) {
-    const x = nodeX(L.n), y = GROUND, coming = !(L.pages && L.pages.length), done = !!L.read, hovered = hoverNode && hoverNode.n === L.n;
-    const bob = Math.sin(time * 2 + L.n) * 1.5;
-    P(x - 2, y - 36, 4, 36, coming ? '#3a3550' : '#8a6a4f');
-    const cw = 48, ch = 32, cx = x - cw / 2, cy = y - 36 - ch + bob;
-    if (coming) {
-      P(cx - 2, cy - 2, cw + 4, ch + 4, '#000'); P(cx, cy, cw, ch, '#1a1730');
-      ctx.globalAlpha = .85; label(x, cy + 12, 'NIVEL ' + L.n, '#5a5a80'); label(x, cy + 24, L.name.slice(0, 9), '#5a5a80'); ctx.globalAlpha = 1;
-      label(x, y - 46 - ch + bob, 'PRÓXIMAMENTE', '#ff6ec7');
-    } else {
-      P(cx - 2, cy - 2, cw + 4, ch + 4, '#2b1600'); P(cx, cy, cw, ch, done ? '#2f7a3f' : '#c0392b'); P(cx, cy, cw, 3, '#ffffff33');
-      glow(x, cy + ch / 2, hovered ? 44 : 30, done ? '#4ade80' : '#ffd23f');
-      label(x, cy + 12, 'NIVEL ' + L.n, '#ffd23f'); label(x, cy + 24, done ? '✔ LEÍDO' : L.name.slice(0, 9), '#ffffff');
-      P(x + cw / 2 - 4, cy - 8 + Math.sin(time * 3) * 2, 4, 4, '#ffd23f');
-    }
-    P(x - 12, y - 2, 24, 3, coming ? '#2a2540' : '#ffd23f');
-  }
-
-  /* ---------- batiseñal HALCÓN + Quetzalcóatl ----------
-     La batiseñal es un reflector fijo sobre el estadio que proyecta un HALCÓN
-     (no un murciélago) en un disco de luz en el cielo. El Quetzalcóatl es una
-     serpiente emplumada que cruza el cielo en bucle. */
-  const SIGNAL_X = 1760;   // ancla en el mundo: sobre el estadio
-
+  /* ---------- Señal del HALCÓN (solo de noche) ----------
+     Va en la capa de CIELO y su disco se ancla por encima del borde superior
+     del espectacular (BILL_TOP), así que el espectacular no puede taparla
+     aunque el panel crezca. De día no se dibuja: lo decide el ciclo día/noche. */
   function drawFalcon(cx, cy, s, col) {
     ctx.fillStyle = col;
-    // alas extendidas (halcón en picada)
     ctx.beginPath();
     ctx.moveTo(cx, cy - 2 * s);
     ctx.quadraticCurveTo(cx - 17 * s, cy - 15 * s, cx - 23 * s, cy - 3 * s);
@@ -573,237 +831,643 @@ const MexWorld = (() => {
     ctx.quadraticCurveTo(cx + 17 * s, cy - 15 * s, cx + 23 * s, cy - 3 * s);
     ctx.quadraticCurveTo(cx + 13 * s, cy - 2 * s, cx, cy + 2 * s);
     ctx.fill();
-    // cuerpo
     ctx.beginPath(); ctx.ellipse(cx, cy, 2.6 * s, 7 * s, 0, 0, 6.29); ctx.fill();
-    // cabeza + pico
     ctx.beginPath(); ctx.arc(cx, cy - 7 * s, 2.4 * s, 0, 6.29); ctx.fill();
     ctx.beginPath(); ctx.moveTo(cx + 2 * s, cy - 8 * s); ctx.lineTo(cx + 5.5 * s, cy - 7.2 * s); ctx.lineTo(cx + 2 * s, cy - 6 * s); ctx.closePath(); ctx.fill();
-    // cola
     ctx.beginPath(); ctx.moveTo(cx - 2.4 * s, cy + 6 * s); ctx.lineTo(cx + 2.4 * s, cy + 6 * s); ctx.lineTo(cx, cy + 12 * s); ctx.closePath(); ctx.fill();
   }
 
-  function drawSignal(camX, W) {
-    const bx = SIGNAL_X;
-    if (bx < camX - 140 || bx > camX + W + 60) return;
-    const baseY = GROUND - 46, discX = bx - 74, discY = 44;
-    const pulse = 0.62 + Math.sin(time * 2) * 0.16;
-    // haz de luz cónico desde la azotea al disco
-    ctx.save();
-    ctx.globalCompositeOperation = 'lighter';
-    const grad = ctx.createLinearGradient(bx, baseY, discX, discY);
-    grad.addColorStop(0, 'rgba(255,238,168,0)');
-    grad.addColorStop(1, 'rgba(255,238,168,' + (0.22 * pulse).toFixed(3) + ')');
-    ctx.fillStyle = grad;
-    ctx.beginPath();
-    ctx.moveTo(bx - 3, baseY); ctx.lineTo(bx + 3, baseY);
-    ctx.lineTo(discX + 26, discY + 8); ctx.lineTo(discX - 26, discY - 8);
-    ctx.closePath(); ctx.fill();
-    ctx.restore();
-    // foco en la azotea
-    P(bx - 5, baseY - 3, 12, 6, '#3a3550'); P(bx - 3, baseY - 2, 8, 4, '#ffe27a');
-    // disco luminoso con el halcón
-    glow(discX, discY, 36 * pulse, '#ffe27a');
-    ctx.fillStyle = 'rgba(255,242,182,' + (0.9 * pulse).toFixed(3) + ')';
-    ctx.beginPath(); ctx.arc(discX, discY, 22, 0, 6.29); ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,.75)'; ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.arc(discX, discY, 22, 0, 6.29); ctx.stroke();
-    drawFalcon(discX, discY + 2, 1.15, '#241708');
+  /* reflectores anclados a las azoteas de los estadios */
+  const SIGNAL_XS = [1760, 3620];
+
+  function drawSignal(L) {
+    if (L > .42) return;                                // SOLO de noche
+    const a = Math.min(1, (0.42 - L) * 3) * (0.75 + Math.sin(time * 1.4) * 0.12);
+    // El disco nunca baja del borde superior del espectacular menos un margen,
+    // así que el espectacular no puede taparlo aunque el panel crezca; y nunca
+    // sube tanto como para salirse por arriba de la pantalla.
+    const ty = Math.max(skyTop() + 26, Math.min(skyY(0.14), BILL_TOP - 34));
+
+    SIGNAL_XS.forEach(SX => {
+      const bx = SX + 40 - cam.x;                       // foco en la azotea
+      const by = GROUND - 46;
+      const tx = bx - 74;                               // disco en el cielo
+      if (tx < -80 || bx > viewW + 120) return;
+
+      ctx.save();
+      ctx.globalAlpha = a * .22;                        // haz de luz cónico
+      ctx.fillStyle = '#fff3b0';
+      ctx.beginPath();
+      ctx.moveTo(bx - 3, by); ctx.lineTo(bx + 3, by);
+      ctx.lineTo(tx + 30, ty + 24); ctx.lineTo(tx - 30, ty + 12);
+      ctx.closePath(); ctx.fill();
+      ctx.globalAlpha = a;
+      P(bx - 5, by - 3, 12, 6, '#3a3550'); P(bx - 3, by - 2, 8, 4, '#ffe27a');   // foco
+      glow(tx, ty, 42, '#ffe27a');
+      ctx.fillStyle = '#fff6c8';                        // disco
+      ctx.beginPath(); ctx.arc(tx, ty, 20, 0, 6.29); ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,.75)'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(tx, ty, 20, 0, 6.29); ctx.stroke();
+      drawFalcon(tx, ty + 2, 1.0, '#241708');           // el halcón
+      ctx.restore();
+      ctx.globalAlpha = 1;
+    });
   }
 
+  /* ---------- Quetzalcóatl cruzando el cielo ---------- */
   function drawQuetzal() {
     const N = 15, seg = 14;
     const hx = ((time * 24) % (WORLD_W + 520)) - 260;
-    const hy = 40 + Math.sin(time * 0.7) * 7;
-    // cuerpo: de la cola a la cabeza (la cabeza queda encima)
+    const hy = skyY(0.12) + Math.sin(time * 0.7) * 7;
     for (let i = N; i >= 1; i--) {
       const x = hx - i * seg, y = hy + Math.sin(time * 3 - i * 0.5) * 11, r = Math.max(1.4, 6 - i * 0.18);
       P(x - r, y - r, r * 2, r * 2, '#1f9e4d');
-      P(x - r + 1, y + r - 2, r * 2 - 2, 2, '#8fe0a8');            // vientre claro
-      if (i % 2 === 0) P(x - 1, y - r - 3, 2, 3, i % 4 === 0 ? '#e0342a' : '#ffd23f'); // cresta de plumas
+      P(x - r + 1, y + r - 2, r * 2 - 2, 2, '#8fe0a8');
+      if (i % 2 === 0) P(x - 1, y - r - 3, 2, 3, i % 4 === 0 ? '#e0342a' : '#ffd23f');
     }
     const y0 = hy + Math.sin(time * 3) * 11;
-    ctx.fillStyle = '#1f9e4d'; ctx.beginPath(); ctx.arc(hx, y0, 8, 0, 6.29); ctx.fill();   // cabeza
-    // penacho de plumas
+    ctx.fillStyle = '#1f9e4d'; ctx.beginPath(); ctx.arc(hx, y0, 8, 0, 6.29); ctx.fill();
     P(hx - 4, y0 - 12, 2, 7, '#ffd23f'); P(hx - 1, y0 - 13, 2, 8, '#e0342a'); P(hx + 2, y0 - 12, 2, 7, '#3fd0ff');
-    P(hx + 5, y0 - 2, 2, 2, '#fff'); P(hx + 6, y0 - 2, 1, 1, '#000');                        // ojo
-    // fauces abiertas
+    P(hx + 5, y0 - 2, 2, 2, '#fff'); P(hx + 6, y0 - 2, 1, 1, '#000');
     ctx.fillStyle = '#e0342a'; ctx.beginPath(); ctx.moveTo(hx + 7, y0 - 3); ctx.lineTo(hx + 16, y0 - 5); ctx.lineTo(hx + 16, y0 - 1); ctx.closePath(); ctx.fill();
     ctx.fillStyle = '#f7e4a0'; ctx.beginPath(); ctx.moveTo(hx + 7, y0 + 1); ctx.lineTo(hx + 16, y0 + 3); ctx.lineTo(hx + 16, y0 + 6); ctx.closePath(); ctx.fill();
-    P(hx + 16, y0, 6, 1, '#e0342a');                                                          // lengua
+    P(hx + 16, y0, 6, 1, '#e0342a');
   }
 
-  /* ---------- render ---------- */
+  /* ============================================================
+     PERSONAJES — sprites pixel art (mismos frames, timing, escala
+     y sombra que la página anterior; solo cambia la paleta para
+     que encajen con la identidad de Mexa Cartoon).
+     ============================================================ */
+  const AVATARS = {
+    capitan: { name: 'CAPITÁN MÉXICO',  desc: 'El héroe volador',  body: 'heroe' },
+    heroina: { name: 'PALOMA BLANCA',   desc: 'La justiciera',     body: 'justiciera' },
+    buho:    { name: 'HALCÓN NOCTURNO', desc: 'El vigía del barrio', body: 'heroe' }
+  };
+  const PAL = {
+    capitan: { SKIN: '#f2c08a', SKIN_D: '#d99a6c', SUIT: '#1f9e4d', SUIT_D: '#14663a',
+               CAPE: '#e0342a', CAPE_D: '#a11f2b', BOOT: '#c92b3a', BELT: '#ffd23f',
+               HAIR: '#1d2233', EYE: '#1b3a7a', GLOW: '#ffd23f', mask: false },
+    buho:    { SKIN: '#e8b98a', SKIN_D: '#c99a6c', SUIT: '#2a2350', SUIT_D: '#1b1638',
+               CAPE: '#3f3a6e', CAPE_D: '#241f45', BOOT: '#1b1638', BELT: '#ffd23f',
+               HAIR: '#2b2b3a', EYE: '#ffd23f', GLOW: '#ffe27a', mask: true },
+    heroina: { SKIN: '#f7cfa6', SKIN_D: '#dcae84', SUIT: '#eef2ff', SUIT_D: '#c1cbe8',
+               CAPE: '#ffffff', CAPE_D: '#d7dcf0', BOOT: '#3f7ad0', GOLD: '#ffd23f',
+               HAIR: '#3b2b23', EYE: '#eafcff', GLOW: '#3fd0ff' }
+  };
+  let avatar = 'capitan';
+
+  function drawSprite(kind, x, y, d, walking, celeb, F) {
+    const legPhase = walking ? [0, 1, 0, -1][F % 4] : 0;
+    const armPhase = walking ? [0, -1, 0, 1][F % 4] : (celeb ? -6 : 0);
+    const blink = (Math.floor(time * 1.3) % 7 === 0) && (time % 1 < .12);
+
+    ctx.globalAlpha = .28; P(x - 9, y - 1, 18, 3, '#000'); ctx.globalAlpha = 1;
+
+    const body = (AVATARS[kind] || AVATARS.capitan).body;
+
+    /* ============ HÉROE CON CAPA (Capitán México / Halcón Nocturno) ============ */
+    if (body === 'heroe') {
+      const C = PAL[kind] || PAL.capitan;
+      // capa ondeante (detrás)
+      ctx.fillStyle = C.CAPE_D;
+      for (let i = 0; i < 7; i++) {
+        const w = 12 - i * .5, off = Math.sin(time * 5 - i * .5) * (1 + i * .35);
+        ctx.fillRect((x - (d > 0 ? 11 : -1) + off) | 0, (y - 27 + i * 4) | 0, w | 0, 4);
+      }
+      P(x - (d > 0 ? 10 : 0), y - 29, 11, 4, C.CAPE);      // cuello de la capa
+      // piernas y botas
+      P(x - 6, y - 12, 5, 12 + legPhase, C.SUIT);
+      P(x + 1, y - 12, 5, 12 - legPhase, C.SUIT);
+      P(x - 7, y - 5 + legPhase, 7, 5, C.BOOT);
+      P(x + 1, y - 5 - legPhase, 7, 5, C.BOOT);
+      // torso
+      P(x - 8, y - 27, 16, 15, C.SUIT);
+      P(x - 8, y - 27, 16, 2, C.SUIT_D);
+      P(x - 8, y - 15, 16, 3, C.BELT);
+      // emblema: estrella
+      P(x - 2, y - 24, 4, 4, C.BELT);
+      P(x - 4, y - 23, 8, 2, C.BELT);
+      P(x - 3, y - 20, 2, 2, C.BELT); P(x + 1, y - 20, 2, 2, C.BELT);
+      // brazos
+      P(x - 11, y - 26 + armPhase, 4, 11, C.SUIT);
+      P(x + 7, y - 26 - armPhase, 4, 11, C.SUIT);
+      P(x - 11, y - 16 + armPhase, 4, 3, C.SKIN);
+      P(x + 7, y - 16 - armPhase, 4, 3, C.SKIN);
+      // cabeza
+      P(x - 6, y - 40, 12, 13, C.SKIN);
+      P(x - 7, y - 37, 1, 8, C.SKIN_D); P(x + 6, y - 37, 1, 8, C.SKIN_D);
+      P(x - 6, y - 42, 12, 4, C.HAIR);
+      P(x - 7, y - 40, 2, 4, C.HAIR); P(x + 5, y - 40, 2, 4, C.HAIR);
+      P(x - 1 + d, y - 43, 3, 2, C.HAIR);
+      if (C.mask) {                                        // antifaz del Halcón
+        P(x - 6, y - 38, 12, 4, C.SUIT_D);
+        P(x - 7, y - 40, 3, 3, C.SUIT_D); P(x + 4, y - 40, 3, 3, C.SUIT_D);
+      }
+      const ex = d > 0 ? x - 4 : x - 5;
+      P(ex, y - 37, 4, blink ? 1 : 4, '#fff'); P(ex + 5, y - 37, 4, blink ? 1 : 4, '#fff');
+      if (!blink) { P(ex + 1 + (d > 0 ? 1 : 0), y - 36, 2, 2, C.EYE); P(ex + 6 + (d > 0 ? 1 : 0), y - 36, 2, 2, C.EYE); }
+      P(x - 3, y - 31, 6, 2, '#c98b6a');
+      if (celeb) { glow(x, y - 24, 26, C.GLOW); P(x - 1, y - 50, 3, 5, C.GLOW); }
+    }
+
+    /* ============ LA JUSTICIERA (Paloma Blanca) ============ */
+    else {
+      const C = PAL.heroina;
+      ctx.fillStyle = C.CAPE_D;
+      for (let i = 0; i < 7; i++) {
+        const w = 11 - i * .45, off = Math.sin(time * 4.4 - i * .45) * (1 + i * .3);
+        ctx.fillRect((x - (d > 0 ? 10 : -1) + off) | 0, (y - 28 + i * 4) | 0, w | 0, 4);
+      }
+      P(x - (d > 0 ? 9 : 0), y - 30, 10, 4, C.CAPE);
+      P(x - 5, y - 12, 4, 12 + legPhase, C.SKIN);
+      P(x + 1, y - 12, 4, 12 - legPhase, C.SKIN);
+      P(x - 6, y - 8 + legPhase, 6, 8, C.BOOT);
+      P(x + 1, y - 8 - legPhase, 6, 8, C.BOOT);
+      P(x - 8, y - 17, 16, 6, C.SUIT_D);
+      P(x - 8, y - 13, 16, 2, C.GOLD);
+      P(x - 7, y - 28, 14, 12, C.SUIT);
+      P(x - 7, y - 28, 14, 2, C.SUIT_D);
+      // emblema alado
+      P(x - 4, y - 24, 8, 2, C.GOLD);
+      P(x - 2, y - 25, 4, 4, C.GOLD);
+      P(x - 6, y - 23, 2, 2, C.GOLD); P(x + 4, y - 23, 2, 2, C.GOLD);
+      P(x - 10, y - 27 + armPhase, 4, 10, C.SUIT);
+      P(x + 6, y - 27 - armPhase, 4, 10, C.SUIT);
+      P(x - 10, y - 18 + armPhase, 4, 4, C.GOLD);
+      P(x + 6, y - 18 - armPhase, 4, 4, C.GOLD);
+      P(x - 6, y - 40, 12, 13, C.SKIN);
+      P(x - 7, y - 37, 1, 8, C.SKIN_D); P(x + 6, y - 37, 1, 8, C.SKIN_D);
+      P(x - 7, y - 42, 14, 5, C.HAIR);
+      P(d > 0 ? x - 9 : x + 5, y - 39, 3, 10, C.HAIR);
+      P(x - 6, y - 38, 12, 4, C.SUIT_D);
+      P(x - 7, y - 40, 3, 3, C.SUIT_D); P(x + 4, y - 40, 3, 3, C.SUIT_D);
+      const ex = d > 0 ? x - 4 : x - 5;
+      P(ex, y - 37, 4, blink ? 1 : 3, C.EYE); P(ex + 5, y - 37, 4, blink ? 1 : 3, C.EYE);
+      P(x - 2, y - 31, 5, 2, '#c1425c');
+      if (celeb) { glow(x, y - 26, 26, C.GLOW); for (let i = 0; i < 3; i++) P(x - 10 + i * 9, y - 50 - Math.sin(time * 6 + i) * 3, 3, 3, C.GOLD); }
+    }
+  }
+
+  function drawHero() {
+    const x = Math.round(hero.x), y = Math.round(hero.y + hero.bob);
+    drawSprite(avatar, x, y, hero.dir, hero.state === 'walk', hero.state === 'celebrate', hero.frame);
+  }
+
+  /* ---------- letreros de nivel ---------- */
+  function drawNode(L) {
+    const x = nodeX(L.n), y = GROUND;
+    const open = !!(L.pages && L.pages.length), done = !!L.read;
+    const hovered = hoverNode && hoverNode.n === L.n;
+    const bob = Math.sin(time * 2 + L.n) * 1.5;
+
+    P(x - 2, y - 34, 4, 34, open ? '#8a6a4f' : '#3a3550');
+    const cw = 44, ch = 30, cx = x - cw / 2, cy = y - 34 - ch + bob;
+    if (open) {
+      P(cx - 2, cy - 2, cw + 4, ch + 4, '#2b1600');
+      P(cx, cy, cw, ch, done ? '#2f7a3f' : '#c0392b');
+      P(cx, cy, cw, 3, '#ffffff33');
+      glow(x, cy + ch / 2, hovered ? 44 : 30, done ? '#4ade80' : '#ffd23f');
+      label(x, cy + 12, 'NIVEL ' + L.n, '#ffd23f');
+      label(x, cy + 24, done ? '✔ LEÍDO' : L.name.slice(0, 9), '#ffffff');
+      P(x + cw / 2 - 4, cy - 8 + Math.sin(time * 3) * 2, 4, 4, '#ffd23f');
+    } else {
+      P(cx - 2, cy - 2, cw + 4, ch + 4, '#000');
+      P(cx, cy, cw, ch, '#1a1730');
+      ctx.globalAlpha = .8; label(x, cy + 11, 'NIVEL ' + L.n, '#5a5a80'); ctx.globalAlpha = 1;
+      P(x - 4, cy + 16, 8, 7, '#8a8ab0');
+      ctx.strokeStyle = '#8a8ab0'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(x, cy + 16, 3.2, Math.PI, 0); ctx.stroke();
+      P(x - 1, cy + 18, 2, 3, '#3a3550');
+      ctx.globalAlpha = .25 + Math.sin(time * 1.5 + L.n) * .08;
+      P(cx - 6, y - 16, cw + 12, 14, '#6a5aa0');
+      ctx.globalAlpha = 1;
+      label(x, y - 44 - ch + bob, 'PRÓXIMAMENTE', '#ff6ec7');
+    }
+    P(x - 12, y - 2, 24, 3, open ? '#ffd23f' : '#2a2540');
+  }
+
+  /* ---------- tráfico ---------- */
+  function drawCar(c, lit, camX, W) {
+    const y = GROUND + (c.lane ? 14 : 30);
+    if (c.x < camX - 70 || c.x > camX + W + 30) return;
+    P(c.x, y, c.w, 8, c.c);
+    P(c.x + 5, y - 5, c.w - 12, 5, mix(c.c, '#000', .25));
+    P(c.x + 7, y - 4, 5, 3, '#bfe9ff');
+    P(c.x + 3, y + 7, 4, 3, '#1b1b23'); P(c.x + c.w - 8, y + 7, 4, 3, '#1b1b23');
+    if (lit) glow(c.spd > 0 ? c.x + c.w : c.x, y + 3, 14, '#fff2a0');
+  }
+  /* easter egg: el Vocho amarillo */
+  function drawVocho(v, lit, camX, W) {
+    const y = GROUND + (v.lane ? 14 : 30), x = v.x, w = v.w;
+    if (x < camX - 80 || x > camX + W + 40) return;
+    const AM = '#f7c948', AM_D = '#c99a1f';
+    P(x + 2, y, w - 4, 8, AM);                 // carrocería
+    P(x, y + 2, w, 6, AM);                     // guardabarros anchos
+    P(x + 7, y - 6, w - 15, 6, AM);            // techo abombado
+    P(x + 6, y - 5, 2, 5, AM_D); P(x + w - 9, y - 5, 2, 5, AM_D);
+    P(x + 9, y - 5, w - 19, 4, '#bfe9ff');     // ventanilla
+    P(x + 1, y + 7, 5, 3, '#1b1b23'); P(x + w - 7, y + 7, 5, 3, '#1b1b23');  // ruedas
+    P(x + 2, y + 4, 2, 2, '#e6e6e6'); P(x + w - 4, y + 4, 2, 2, '#e6e6e6');  // cromados
+    P(x + (v.spd > 0 ? w - 3 : 1), y + 1, 2, 2, '#fff6c8');                   // faro
+    if (lit) glow(v.spd > 0 ? x + w : x, y + 3, 14, '#fff2a0');
+  }
+
+  /* ---------- escena ---------- */
   let dt = 0, last = 0;
+  let nearBill = null;
+
   function render() {
-    ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.save(); ctx.scale(scale, scale);
+    const s = sky(), L = s.light;
+    const bottom = viewH - camY;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.save();
+    ctx.scale(scale, scale);
     ctx.beginPath(); ctx.rect(0, 0, viewW, viewH); ctx.clip();
 
+    // cielo
     const g = ctx.createLinearGradient(0, 0, 0, viewH);
-    g.addColorStop(0, '#3a6fd0'); g.addColorStop(.55, '#f5a35e'); g.addColorStop(1, '#ffd9a0');
+    g.addColorStop(0, s.top); g.addColorStop(1, s.bot);
     ctx.fillStyle = g; ctx.fillRect(0, 0, viewW, viewH);
-    glow(viewW * .5, (GROUND + camY) * .55, 34, '#fff3a0'); P(viewW * .5 - 9, (GROUND + camY) * .55 - 9, 18, 18, '#fff6c8');
 
-    ctx.save(); ctx.translate(0, camY);
-    const camX = cam.x, W = viewW + 40;
+    if (L < 0.5) stars.forEach(st => {
+      const a = .4 + Math.sin(time * 2 + st.tw) * .4;
+      ctx.globalAlpha = (0.5 - L) * 2 * a;
+      P(st.xr * viewW, st.yr * (GROUND + camY) * .75, 1, 1, '#fff');
+    });
+    ctx.globalAlpha = 1;
 
-    ctx.save(); ctx.translate(-camX * 0.12, 0);
+    // sol / luna
+    const ang = (dayT - 0.25) * Math.PI * 2;
+    const horizon = (GROUND + camY) * .8;
+    const sunX = viewW / 2 + Math.cos(ang - Math.PI / 2) * (viewW * .55);
+    const sunY = horizon - Math.sin(ang - Math.PI / 2) * (horizon * .75) - 10;
+    if (L > .35) { glow(sunX, sunY, 30, '#fff3a0'); P(sunX - 8, sunY - 8, 16, 16, '#fff6c0'); }
+    else {
+      const mx = viewW - sunX, my = horizon - (sunY - horizon) - 40;
+      glow(mx, my, 22, '#cfd8ff'); P(mx - 6, my - 6, 12, 12, '#eef2ff'); P(mx - 2, my - 4, 5, 5, '#c9d2f0');
+    }
+
+    ctx.save();
+    const shakeX = cam.shake ? (Math.random() - .5) * cam.shake : 0;
+    const shakeY = cam.shake ? (Math.random() - .5) * cam.shake : 0;
+    ctx.translate(shakeX, shakeY + camY);
+
+    const camX = cam.x, zoom = cam.zoom;
+
+    // volcanes (montañas lejanas)
+    ctx.save(); ctx.translate(-camX * 0.15, 0);
     for (let i = -1; i < WORLD_W / 320 + 2; i++) {
       const bx = i * 320;
-      ctx.fillStyle = '#5a5f86'; ctx.beginPath(); ctx.moveTo(bx, 172); ctx.lineTo(bx + 84, 70); ctx.lineTo(bx + 168, 172); ctx.closePath(); ctx.fill();
-      ctx.fillStyle = '#eef2ff'; ctx.beginPath(); ctx.moveTo(bx + 66, 92); ctx.lineTo(bx + 84, 70); ctx.lineTo(bx + 102, 92); ctx.closePath(); ctx.fill();
-      ctx.fillStyle = '#4a4f76'; ctx.beginPath(); ctx.moveTo(bx + 150, 172); ctx.lineTo(bx + 220, 104); ctx.lineTo(bx + 300, 172); ctx.closePath(); ctx.fill();
-      ctx.globalAlpha = .4; for (let k = 0; k < 3; k++) { const t = (time * 4 + k * 20) % 60; P(bx + 84 - 4 - t * .12, 70 - 6 - t, 10 + t * .2, 5, '#dfe3ee'); } ctx.globalAlpha = 1;
+      ctx.fillStyle = mix('#4a5a8f', '#5a5f86', L);
+      ctx.beginPath(); ctx.moveTo(bx, 172); ctx.lineTo(bx + 84, 70); ctx.lineTo(bx + 168, 172); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = mix('#8fa0d0', '#eef2ff', L * .9);
+      ctx.beginPath(); ctx.moveTo(bx + 66, 92); ctx.lineTo(bx + 84, 70); ctx.lineTo(bx + 102, 92); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = mix('#3f4d7a', '#4a4f76', L);
+      ctx.beginPath(); ctx.moveTo(bx + 150, 172); ctx.lineTo(bx + 220, 104); ctx.lineTo(bx + 300, 172); ctx.closePath(); ctx.fill();
+      ctx.globalAlpha = .4 * L;
+      for (let k = 0; k < 3; k++) { const t = (time * 4 + k * 20) % 60; P(bx + 84 - 4 - t * .12, 70 - 6 - t, 10 + t * .2, 5, '#dfe3ee'); }
+      ctx.globalAlpha = 1;
     }
     ctx.restore();
 
-    ctx.save(); ctx.translate(-camX * 0.3, 0); ctx.fillStyle = '#3f7a4a';
+    // colinas
+    ctx.save(); ctx.translate(-camX * 0.35, 0);
+    ctx.fillStyle = mix('#2c5a35', '#3f7a4a', L);
     for (let i = -1; i < WORLD_W / 180 + 2; i++) { ctx.beginPath(); ctx.arc(i * 180 + 90, 202, 78, Math.PI, 0); ctx.fill(); }
     ctx.restore();
 
-    ctx.save(); ctx.translate(-camX * 0.5, 0); ctx.globalAlpha = .9;
-    clouds.forEach(c => { const cx = ((c.x - time * c.spd) % (WORLD_W + 200) + WORLD_W + 200) % (WORLD_W + 200) - 100, cy = 12 + c.yr * 70; P(cx, cy, c.w, 7 * c.s, '#fff'); P(cx + 6, cy - 5 * c.s, c.w * .6, 7 * c.s, '#fff'); P(cx + c.w * .3, cy - 9 * c.s, c.w * .35, 7 * c.s, '#fff'); });
-    ctx.globalAlpha = 1; ctx.restore();
+    // nubes
+    ctx.save(); ctx.translate(-camX * 0.5, 0);
+    ctx.globalAlpha = .9;
+    const col = L > .5 ? '#ffffff' : mix('#6a6f9a', '#ffffff', L * 1.4);
+    clouds.forEach(c => {
+      const cx = ((c.x - time * c.spd) % (WORLD_W + 200) + WORLD_W + 200) % (WORLD_W + 200) - 100;
+      const cy = skyY(c.yr);
+      P(cx, cy, c.w, 7 * c.s, col);
+      P(cx + 6, cy - 5 * c.s, c.w * .6, 7 * c.s, col);
+      P(cx + c.w * .3, cy - 9 * c.s, c.w * .35, 7 * c.s, col);
+    });
+    ctx.globalAlpha = 1;
+    // Quetzalcóatl (misma capa de parallax de cielo)
+    drawQuetzal();
+    ctx.restore();
 
-    // Quetzalcóatl cruzando el cielo (capa lejana, parallax suave)
-    ctx.save(); ctx.translate(-camX * 0.5, 0); drawQuetzal(); ctx.restore();
+    drawSignal(L);        // señal del halcón (solo de noche, siempre por encima)
+    drawUfos(dt, L);      // ovnis cruzando
 
-    ctx.save(); ctx.translate(-camX, 0);
-    P(camX - 20, GROUND - 6, W, 6, '#4e9e4e');
+    // ===== capa principal =====
+    ctx.save();
+    ctx.translate(viewW / 2, GROUND);
+    ctx.scale(zoom, zoom);
+    ctx.translate(-viewW / 2, -GROUND);
+    ctx.translate(-camX, 0);
 
-    // batiseñal con el halcón (detrás de los edificios)
-    drawSignal(camX, W);
+    const lit = L < 0.55, W = viewW / zoom + 40;
+
+    P(camX - 20, GROUND - 6, W, 6, mix('#2f6b3a', '#4e9e4e', L));
 
     structures.forEach(st => {
       if (st.x + (st.w || 90) < camX - 40 || st.x > camX + W) return;
-      ({ vecindad: drawVecindad, iglesia: drawIglesia, piramide: drawPiramide, angel: drawAngel, tianguis: drawTianguis, estadio: drawEstadio, billboard: drawBillboard }[st.type] || (() => {}))(st);
+      ({ vecindad: drawVecindad, iglesia: drawIglesia, piramide: drawPiramide, angel: drawAngel,
+         tianguis: drawTianguis, estadio: drawEstadio, billboard: drawBillboard }[st.type] || (() => {}))(st, lit);
     });
 
+    // papel picado
     ctx.save(); ctx.translate(0, Math.sin(time) * 1.5);
-    papel.forEach(f => { if (f.x < camX - 20 || f.x > camX + W) return; const yy = GROUND - 118 + Math.sin(f.x * .05) * 4; ctx.fillStyle = f.c; ctx.beginPath(); ctx.moveTo(f.x, yy); ctx.lineTo(f.x + 20, yy); ctx.lineTo(f.x + 10, yy + 12); ctx.closePath(); ctx.fill(); });
-    ctx.strokeStyle = '#00000044'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(camX - 20, GROUND - 118); ctx.lineTo(camX + W, GROUND - 118); ctx.stroke();
+    papel.forEach(f => {
+      if (f.x < camX - 20 || f.x > camX + W) return;
+      const yy = GROUND - 118 + Math.sin(f.x * .05) * 4;
+      ctx.fillStyle = f.c; ctx.beginPath(); ctx.moveTo(f.x, yy); ctx.lineTo(f.x + 20, yy); ctx.lineTo(f.x + 10, yy + 12); ctx.closePath(); ctx.fill();
+    });
+    ctx.strokeStyle = '#00000044'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(camX - 20, GROUND - 118); ctx.lineTo(camX + W, GROUND - 118); ctx.stroke();
     ctx.restore();
 
-    P(camX - 20, GROUND, W, 10, '#c9c4b4'); P(camX - 20, GROUND, W, 1, '#e6e2d4');
+    // acera + calle
+    P(camX - 20, GROUND, W, 10, '#c9c4b4');
+    P(camX - 20, GROUND, W, 1, '#e6e2d4');
     for (let i = Math.floor(camX / 16) * 16; i < camX + W; i += 16) P(i, GROUND, 1, 10, '#b3ae9e');
-    P(camX - 20, GROUND + 10, W, 34, '#33343f');
+
+    P(camX - 20, GROUND + 10, W, 34, mix('#2b2b38', '#33343f', L));
     for (let i = Math.floor(camX / 24) * 24; i < camX + W; i += 24) P(i, GROUND + 26, 12, 2, '#e8d44d');
+
+    // tráfico
+    cars.forEach(c => {
+      c.x += c.spd * dt;
+      if (c.x > WORLD_W + 60) c.x = -60;
+      if (c.x < -60) c.x = WORLD_W + 60;
+      drawCar(c, lit, camX, W);
+    });
+    if (vocho) {
+      if (!vocho.on) { vocho.next -= dt; if (vocho.next <= 0) { vocho.on = true; vocho.lane = Math.random() < .5 ? 0 : 1; vocho.spd = (16 + Math.random() * 10) * (vocho.lane ? -1 : 1); vocho.x = vocho.spd > 0 ? -80 : WORLD_W + 80; } }
+      else {
+        vocho.x += vocho.spd * dt;
+        if (vocho.x > WORLD_W + 90 || vocho.x < -90) { vocho.on = false; vocho.next = 28 + Math.random() * 45; }
+        else drawVocho(vocho, lit, camX, W);
+      }
+    }
+
     P(camX - 20, GROUND + 44, W, 8, '#c9c4b4');
-    P(camX - 20, GROUND + 52, W, Math.max(40, viewH - camY - GROUND - 52 + 20), '#3f8a49');
+    P(camX - 20, GROUND + 52, W, Math.max(40, bottom - GROUND - 52 + 20), mix('#2b5a35', '#3f8a49', L));
 
     props.forEach(p => { if (p.x < camX - 40 || p.x > camX + W) return; drawProp(p); });
-    lamps.forEach(l => { if (l.x < camX - 30 || l.x > camX + W) return; P(l.x, GROUND - 40, 3, 40, '#5a5f6e'); P(l.x - 4, GROUND - 44, 11, 4, '#7a808f'); });
+
+    lamps.forEach(l => {
+      if (l.x < camX - 30 || l.x > camX + W) return;
+      P(l.x, GROUND - 40, 3, 40, '#5a5f6e');
+      P(l.x - 4, GROUND - 44, 11, 4, '#7a808f');
+      if (lit) { glow(l.x + 1, GROUND - 40, 26, '#ffe08a'); P(l.x - 2, GROUND - 42, 7, 3, '#fff3c0'); }
+    });
 
     levels.forEach(drawNode);
     drawHero();
 
-    birds.forEach(b => { b.x += b.spd * dt; if (b.x > WORLD_W + 30) b.x = -30; if (b.x < camX - 30 || b.x > camX + W) return; const f = Math.sin(time * 8 + b.t) * 3, by = 20 + b.yr * 80; P(b.x, by, 3, 1, '#2b2b38'); P(b.x - 3, by - f, 3, 1, '#2b2b38'); P(b.x + 3, by - f, 3, 1, '#2b2b38'); });
+    birds.forEach(b => {
+      b.x += b.spd * dt; if (b.x > WORLD_W + 30) b.x = -30;
+      if (b.x < camX - 30 || b.x > camX + W) return;
+      const f = Math.sin(time * 8 + b.t) * 3, by = skyY(b.yr);
+      P(b.x, by, 3, 1, '#2b2b38'); P(b.x - 3, by - f, 3, 1, '#2b2b38'); P(b.x + 3, by - f, 3, 1, '#2b2b38');
+    });
 
-    ctx.restore(); ctx.restore(); ctx.restore();
+    ctx.restore();  // capa principal
+
+    if (L < 1) { ctx.globalAlpha = (1 - L) * 0.5; ctx.fillStyle = '#0a1030'; ctx.fillRect(-camY, -camY, viewW + camY * 2, viewH + camY * 2); ctx.globalAlpha = 1; }
+
+    ctx.restore();  // shake + camY
+    ctx.restore();  // scale
   }
 
   /* ---------- lógica ---------- */
   function update(ts) {
-    dt = Math.min(0.05, (ts - last) / 1000 || 0); last = ts; time += dt;
-    let move = 0;
-    if (hero.target === null) {
-      if (keys.ArrowLeft || keys.a || keys.padL) move = -1;
-      if (keys.ArrowRight || keys.d || keys.padR) move = 1;
-    } else {
-      const d = hero.target - hero.x;
-      if (Math.abs(d) < 3) { hero.x = hero.target; hero.target = null; hero.state = 'idle'; const cb = hero.onArrive; hero.onArrive = null; if (cb) cb(); }
-      else move = Math.sign(d);
-    }
-    if (move !== 0) { hero.dir = move; hero.x = Math.max(40, Math.min(WORLD_W - 40, hero.x + move * 64 * dt)); hero.state = 'walk'; hero.t += dt; if (hero.t > 0.12) { hero.t = 0; hero.frame++; } }
-    else hero.state = 'idle';
+    dt = Math.min(0.05, (ts - last) / 1000 || 0); last = ts;
+    if (!paused) {
+      time += dt;
+      if (dayAuto) dayT = (dayT + dt / 180) % 1;
 
-    cam.targetX = Math.max(0, Math.min(WORLD_W - viewW, hero.x - viewW / 2));
-    cam.x += (cam.targetX - cam.x) * Math.min(1, dt * 5);
+      let move = 0;
+      if (hero.target === null) {
+        if (keys.ArrowLeft || keys.padL) move = -1;
+        if (keys.ArrowRight || keys.padR) move = 1;
+      } else {
+        const d = hero.target - hero.x;
+        if (Math.abs(d) < 3) {
+          hero.x = hero.target; hero.target = null; hero.state = 'idle';
+          const cb = hero.onArrive; hero.onArrive = null; if (cb) cb();
+        } else move = Math.sign(d);
+      }
+
+      if (move !== 0 && hero.state !== 'celebrate') {
+        hero.dir = move;
+        hero.x = Math.max(40, Math.min(WORLD_W - 40, hero.x + move * 62 * dt));
+        hero.state = 'walk'; hero.t += dt;
+        if (hero.t > 0.13) { hero.t = 0; hero.frame++; if (hero.frame % 2 === 0) MexAudio.sfxStep(); }
+        hero.bob = 0;
+      } else if (hero.state !== 'celebrate') {
+        hero.state = 'idle'; hero.bob = Math.sin(time * 3) * 0.6;
+      } else hero.bob = -Math.abs(Math.sin(time * 8)) * 4;
+
+      nearBill = billboardNear(hero.x);
+
+      const vw = viewW / cam.zoom;
+      cam.targetX = Math.max(0, Math.min(WORLD_W - vw, hero.x - vw / 2));
+      cam.x += (cam.targetX - cam.x) * Math.min(1, dt * 5);
+      cam.zoom += (cam.targetZoom - cam.zoom) * Math.min(1, dt * 3);
+      cam.shake = Math.max(0, cam.shake - dt * 12);
+    }
     render();
     requestAnimationFrame(update);
   }
 
   /* ---------- entrada ---------- */
   function screenToWorld(px, py) {
-    const rect = cv.getBoundingClientRect(), cssScale = scale / dpr;
-    const sx = (px - rect.left) / cssScale, sy = (py - rect.top) / cssScale - camY;
-    return { x: sx + cam.x, y: sy };
+    const rect = cv.getBoundingClientRect();
+    const cssScale = scale / dpr;
+    const sx = (px - rect.left) / cssScale;
+    const sy = (py - rect.top) / cssScale - camY;
+    return {
+      x: (sx - viewW / 2) / cam.zoom + viewW / 2 + cam.x,
+      y: (sy - GROUND) / cam.zoom + GROUND
+    };
   }
   function handleClick(px, py) {
-    const w = screenToWorld(px, py), n = nodeAt(w.x, w.y);
+    const w = screenToWorld(px, py);
+    const n = nodeAt(w.x, w.y);
     if (n) return goToLevel(n);
-    hero.target = Math.max(40, Math.min(WORLD_W - 40, w.x)); hero.onArrive = null;
+    const b = billAt(w.x, w.y);
+    if (b) return goToBillboard(b);
+    hero.target = Math.max(40, Math.min(WORLD_W - 40, w.x));
+    hero.onArrive = null;
   }
-  function goToLevel(L) { hero.target = nodeX(L.n) - 2; hero.onArrive = () => onEnter(L); }
+  function goToLevel(L) {
+    MexAudio.sfxSelect();
+    hero.target = nodeX(L.n) - 4;
+    hero.onArrive = () => onEnter(L);
+  }
+  function goToBillboard(b) {
+    MexAudio.sfxSelect();
+    hero.target = Math.max(40, Math.min(WORLD_W - 40, b.x + (b.w || 74) / 2));
+    hero.onArrive = () => onBillboard(b);
+  }
+  /* la tecla A / botón A: primero el nivel más cercano, luego el espectacular
+     (detección por colisión, nunca por clic) */
+  function tryEnterNearest(silent) {
+    if (paused) return false;
+    const n = levels.find(L => Math.abs(nodeX(L.n) - hero.x) < 34);
+    const b = billboardNear(hero.x);
+    // si por lo que sea los dos quedasen a tiro, gana el más cercano
+    if (n && b) {
+      const dn = Math.abs(nodeX(n.n) - hero.x), db = Math.abs(b.x + (b.w || 74) / 2 - hero.x);
+      if (db < dn) { goToBillboard(b); return true; }
+    }
+    if (n) { goToLevel(n); return true; }
+    if (b) { goToBillboard(b); return true; }
+    if (!silent) MexAudio.sfxDenied();
+    return false;
+  }
 
   function resize() {
     dpr = Math.min(2, window.devicePixelRatio || 1);
     const w = window.innerWidth, h = window.innerHeight;
-    cv.width = w * dpr; cv.height = h * dpr; cv.style.width = w + 'px'; cv.style.height = h + 'px';
-    const cw = w * dpr, ch = h * dpr, targetW = w < 520 ? 280 : (w < 900 ? 360 : VIEW_W);
-    scale = cw / targetW; if (ch / scale < 190) scale = ch / 190;
-    viewW = cw / scale; viewH = ch / scale; camY = Math.max(0, viewH * 0.76 - GROUND);
+    cv.width = w * dpr; cv.height = h * dpr;
+    cv.style.width = w + 'px'; cv.style.height = h + 'px';
+    const cw = w * dpr, ch = h * dpr;
+    const targetW = w < 520 ? 260 : (w < 900 ? 340 : VIEW_W);
+    scale = cw / targetW;
+    if (ch / scale < 190) scale = ch / 190;
+    viewW = cw / scale;
+    viewH = ch / scale;
+    camY = Math.max(0, viewH * 0.76 - GROUND);
     ctx.imageSmoothingEnabled = false;
     cam.x = Math.max(0, Math.min(WORLD_W - viewW, hero.x - viewW / 2));
   }
 
   return {
-    GROUND, nodeX,
+    GROUND, VIEW_W, VIEW_H, MAX_LEVELS, WORLD_W,
     get hero() { return hero; },
+    get camera() { return cam; },
+    nodeX,
+
     init(canvas, cbs) {
       cv = canvas; ctx = cv.getContext('2d', { alpha: false });
-      onEnter = cbs.onEnter || onEnter; onHover = cbs.onHover || onHover;
-      buildWorld(); resize();
+      onEnter = cbs.onEnter || onEnter;
+      onBillboard = cbs.onBillboard || onBillboard;
+      onHover = cbs.onHover || onHover;
+      buildWorld();
+      resize();
       window.addEventListener('resize', resize);
       window.addEventListener('orientationchange', () => setTimeout(resize, 200));
+
       cv.addEventListener('click', e => handleClick(e.clientX, e.clientY));
-      cv.addEventListener('mousemove', e => { const w = screenToWorld(e.clientX, e.clientY), n = nodeAt(w.x, w.y); hoverNode = n; cv.style.cursor = n ? 'pointer' : 'default'; onHover(n, e.clientX, e.clientY); });
-      window.addEventListener('keydown', e => { keys[e.key] = true; if (e.key === 'Enter' || e.key === ' ') { const n = levels.find(L => Math.abs(nodeX(L.n) - hero.x) < 34); if (n) { e.preventDefault(); goToLevel(n); } } });
+      cv.addEventListener('mousemove', e => {
+        const w = screenToWorld(e.clientX, e.clientY);
+        const n = nodeAt(w.x, w.y);
+        const b = !n && billAt(w.x, w.y);
+        hoverNode = n;
+        cv.style.cursor = (n || b) ? 'pointer' : 'default';
+        onHover(n, !!b, e.clientX, e.clientY);
+      });
+      window.addEventListener('keydown', e => {
+        keys[e.key] = true;
+        if (e.key === 'Enter' || e.key === ' ' || e.key === 'a' || e.key === 'A') {
+          if (tryEnterNearest(true)) e.preventDefault();
+        }
+      });
       window.addEventListener('keyup', e => { keys[e.key] = false; });
+
       requestAnimationFrame(ts => { last = ts; update(ts); });
     },
+
     setLevels(list) { levels = list; },
-    setAvatar(k) { if (heroImgs[k]) avatar = k; },
-    setKey(k, v) { keys[k] = v; }
+    get avatars() { return AVATARS; },
+    setAvatar(k) { if (AVATARS[k]) avatar = k; },
+    getAvatar() { return avatar; },
+    /* dibuja el sprite en un canvas pequeño (para el menú de selección) */
+    preview(canvas, kind, walking) {
+      const c = canvas.getContext('2d');
+      c.imageSmoothingEnabled = false;
+      const S = canvas.width / 46;
+      const keep = ctx; ctx = c;
+      c.setTransform(1, 0, 0, 1, 0, 0);
+      c.clearRect(0, 0, canvas.width, canvas.height);
+      c.setTransform(S, 0, 0, S, 0, 0);
+      drawSprite(kind, 23, 50, 1, !!walking, false, Math.floor(time * 7));
+      ctx = keep;
+    },
+    setKey(k, v) { keys[k] = v; },
+    pause(p) { paused = p; },
+    setDayAuto(v) { dayAuto = v; },
+    toggleDay() { dayAuto = false; dayT = (dayT > .3 && dayT < .7) ? .88 : .45; return (dayT > .3 && dayT < .7); },
+    get isDay() { return sky().light > .6; },
+
+    tryEnterNearest,
+    celebrate(ms = 2200) {
+      hero.state = 'celebrate'; cam.shake = 4;
+      setTimeout(() => { if (hero.state === 'celebrate') hero.state = 'idle'; }, ms);
+    },
+    cinematicTo(x, done) {
+      cam.targetZoom = viewW < 300 ? 1.25 : 1.6;
+      hero.target = Math.max(40, Math.min(WORLD_W - 40, x));
+      hero.onArrive = () => setTimeout(() => { cam.targetZoom = 1; done && done(); }, 500);
+    },
+    resetZoom() { cam.targetZoom = 1; },
+    walkTo(x, cb) { hero.target = x; hero.onArrive = cb || null; },
+    placeAt(x) { hero.x = x; cam.x = Math.max(0, Math.min(WORLD_W - viewW, x - viewW / 2)); }
   };
 })();
 </script>
 
 <script>
 /* ============================================================
-   Glue: héroe, niveles (leídos de temporadas.json), cómic, progreso.
+   Glue: héroe, niveles (temporadas.json), cinemática, lector,
+   postales del espectacular, tienda y progreso.
    ============================================================ */
 (function () {
   const $id = i => document.getElementById(i);
-  const HEROES = {
-    heroina: { name: 'PALOMA BLANCA', img: 'assets/cutout-heroina.png' },
-    capitan: { name: 'CAPITÁN MÉXICO', img: 'assets/cutout-capitan.png' },
-    buho:    { name: 'HALCÓN NOCTURNO', img: 'assets/cutout-buho.png' }
-  };
-  const ORDER = ['heroina', 'capitan', 'buho'];
-  let hero = 'heroina';
+  const $   = s => document.querySelector(s);
+
+  /* ---------------------------------------------------------
+     MÚSICA — para cambiar la pista basta con cambiar ESTA línea
+     (el archivo debe estar junto a index.html). Ni el reproductor,
+     ni los controles, ni el volumen, ni la lógica se tocan.
+     --------------------------------------------------------- */
+  const MUSICA = 'musica.mp3';
+
+  const ORDER = ['capitan', 'heroina', 'buho'];
+  let hero = 'capitan';
 
   // nombres de los niveles (barrios de la CDMX). El nivel n usa la temporada n
-  // del cómic → mismo modelo que Mundo Simz, editable desde el panel.
-  const NAMES = { 1: 'TEPITO', 2: 'EL ÁNGEL', 3: 'IZTAPALAPA', 4: 'COAPA', 5: 'NEZA', 6: 'BARRIO BRAVO' };
+  // del cómic → mismo modelo que la página anterior, editable desde el panel.
+  const NAMES = {
+    1: 'TEPITO',       2: 'EL ÁNGEL',    3: 'IZTAPALAPA',  4: 'COAPA',
+    5: 'NEZA',         6: 'BARRIO BRAVO',7: 'XOCHIMILCO',  8: 'COYOACÁN',
+    9: 'LA ROMA',     10: 'DOCTORES',   11: 'SANTA FE',   12: 'MILPA ALTA',
+   13: 'LA MERCED',   14: 'GUERRERO',   15: 'AZCAPOTZALCO',16: 'TLALPAN',
+   17: 'LA CONDESA',  18: 'PERALVILLO', 19: 'CHAPULTEPEC',20: 'ZÓCALO'
+  };
 
-  // páginas por defecto (mientras no exista temporadas.json / primer despliegue):
-  // nivel 1 = t1-01..15, nivel 2 = t2-01..09. El resto se suben desde el panel.
+  // páginas por defecto (mientras no exista temporadas.json)
   const seq = (p, a, b) => { const r = []; for (let i = a; i <= b; i++) r.push(p + String(i).padStart(2, '0') + '.jpg'); return r; };
   const MANIFEST = { 1: seq('t1-', 1, 15), 2: seq('t2-', 1, 9) };
 
-  // temporadas.json vive en la RAÍZ de ESTE sitio (base de datos propia de Mexa Cartoon)
+  // postales del espectacular: los mismos tres héroes que rota el panel
+  const POSTALES = ['assets/cutout-capitan.png', 'assets/cutout-heroina.png', 'assets/cutout-buho.png'];
+
   let REMOTE = {}, R2_BASE = '';
   const esR2 = p => /^t\d{1,2}-\d{4}\.[a-z]+$/i.test(String(p));
   const urlDe = p => esR2(p) && R2_BASE ? `${R2_BASE}/${encodeURIComponent(p)}` : p;
 
-  const LEVELS = [1, 2, 3, 4, 5, 6].map(n => ({ n, name: NAMES[n], pages: [], read: false }));
+  const LEVELS = Array.from({ length: MexWorld.MAX_LEVELS }, (_, k) =>
+    ({ n: k + 1, name: NAMES[k + 1] || ('NIVEL ' + (k + 1)), pages: [], read: false }));
 
-  const READ_KEY = 'cdmxheroes.read.v1';
+  const READ_KEY = 'mexacartoon.read.v1';
+  const AV_KEY   = 'mexacartoon.avatar.v1';
   let readSet = {};
   try { readSet = JSON.parse(localStorage.getItem(READ_KEY) || '{}'); } catch (e) {}
+  try { const a = localStorage.getItem(AV_KEY); if (a && MexWorld.avatars[a]) hero = a; } catch (e) {}
 
   async function loadLevels() {
-    try { const r = await fetch('temporadas.json?t=' + Date.now()); if (r.ok) { REMOTE = await r.json() || {}; R2_BASE = REMOTE._r2 || ''; } } catch (e) {}
+    try { const r = await fetch('temporadas.json?t=' + Date.now()); if (r.ok) { REMOTE = await r.json() || {}; R2_BASE = String(REMOTE._r2 || '').replace(/\/+$/, ''); } } catch (e) {}
     LEVELS.forEach(L => {
       const rm = REMOTE[L.n];
       const raw = (rm && Array.isArray(rm.pages) && rm.pages.length) ? rm.pages.slice() : (MANIFEST[L.n] || []).slice();
@@ -819,46 +1483,307 @@ const MexWorld = (() => {
     $id('badgeProgress').textContent = `Progreso ${Math.round(done / total * 100)}%  ·  ${done}/${total}`;
   }
 
-  // --- selección de héroe ---
-  const picks = $id('picks');
-  ORDER.forEach(k => {
-    const d = document.createElement('div'); d.className = 'pick' + (k === hero ? ' on' : '');
-    d.innerHTML = `<img src="${HEROES[k].img}" alt="${HEROES[k].name}"><div class="n">${HEROES[k].name}</div>`;
-    d.onclick = () => { hero = k; document.querySelectorAll('.pick').forEach(x => x.classList.remove('on')); d.classList.add('on'); MexAudio.sfxSelect(); };
-    picks.appendChild(d);
-  });
+  /* ---------- toast ---------- */
+  let toastT;
+  function toast(msg) {
+    const t = $id('toast'); t.textContent = msg; t.classList.remove('hidden');
+    clearTimeout(toastT); toastT = setTimeout(() => t.classList.add('hidden'), 2200);
+  }
 
+  /* ---------- selector de personaje (sprites animados) ---------- */
+  let previewRAF = null;
+  function openChooser(first) {
+    const box = $id('avatars'); box.innerHTML = '';
+    const cards = [];
+    ORDER.forEach(k => {
+      const a = MexWorld.avatars[k];
+      const el = document.createElement('div');
+      el.className = 'av-card' + (k === hero ? ' on' : '');
+      el.innerHTML = `<canvas width="92" height="100"></canvas>
+                      <div class="n">${a.name}</div><div class="d">${a.desc}</div>`;
+      el.onclick = () => {
+        cards.forEach(c => c.el.classList.remove('on'));
+        el.classList.add('on');
+        hero = k; try { localStorage.setItem(AV_KEY, k); } catch (e) {}
+        MexWorld.setAvatar(k); MexAudio.sfxSelect();
+      };
+      box.appendChild(el);
+      cards.push({ el, k, cv: el.querySelector('canvas') });
+    });
+    cancelAnimationFrame(previewRAF);
+    (function loop() {
+      cards.forEach(c => MexWorld.preview(c.cv, c.k, c.el.classList.contains('on')));
+      previewRAF = requestAnimationFrame(loop);
+    })();
+    MexWorld.setAvatar(hero);
+    $id('chooser').classList.remove('hidden');
+    $id('chooser').dataset.first = first ? '1' : '';
+  }
+  async function closeChooser() {
+    cancelAnimationFrame(previewRAF); previewRAF = null;
+    $id('chooser').classList.add('hidden');
+    MexAudio.sfxCoin();
+    await start();
+    if ($id('chooser').dataset.first) { MexAudio.music('map'); MexWorld.celebrate(1200); }
+  }
+
+  /* ---------- arranque del mundo ---------- */
   let started = false;
   async function start() {
-    $id('select').style.display = 'none';
     $id('game').classList.add('on');
     MexWorld.setAvatar(hero);
     if (!started) {
       await loadLevels();
       MexWorld.setLevels(LEVELS);
-      MexWorld.init($id('world'), { onEnter: enterLevel, onHover: showTip });
+      MexWorld.init($id('world'), { onEnter: startCinematic, onBillboard: startPostales, onHover: showTip });
+      const first = LEVELS.find(L => L.pages.length && !L.read) || LEVELS[0];
+      MexWorld.placeAt(Math.max(120, MexWorld.nodeX(first.n) - 90));
       started = true;
     }
     updProgreso();
     MexAudio.music('map');
   }
 
-  // --- pantalla de título → selección de héroe (aquí arranca el audio) ---
+  /* ---------- pantalla de título → selección (aquí arranca el audio) ---------- */
   $id('bootStart').onclick = () => {
+    MexAudio.setAmbient(MUSICA);     // suena en bucle durante toda la navegación
     MexAudio.start();
     MexAudio.sfxEnter();
     $id('boot').classList.add('hidden');
-    $id('select').style.display = 'flex';
+    openChooser(true);
   };
+  $id('avatarGo').onclick = closeChooser;
+  $id('btnHero').onclick = () => { MexAudio.sfxSelect(); openChooser(false); };
+  const toggleFull = () => document.fullscreenElement ? document.exitFullscreen?.() : document.documentElement.requestFullscreen?.();
+  $id('btnFull').onclick = toggleFull;
+  $id('readerFull').onclick = toggleFull;
+  $id('btnSound').onclick = e => e.target.textContent = MexAudio.toggle() ? '🔊' : '🔇';
+  $id('btnDayNight').onclick = e => e.target.textContent = MexWorld.toggleDay() ? '☀' : '🌙';
 
-  $id('enterBtn').onclick = start;
-  $id('btnHero').onclick = () => { $id('game').classList.remove('on'); $id('select').style.display = 'flex'; };
-  $id('btnFull').onclick = () => { if (!document.fullscreenElement) { document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); } else { document.exitFullscreen && document.exitFullscreen(); } };
+  /* ---------- tooltip ---------- */
+  const tip = $id('tooltip');
+  function showTip(L, isBill, px, py) {
+    if (!L && !isBill) { tip.classList.add('hidden'); return; }
+    tip.classList.remove('hidden');
+    tip.style.left = px + 'px'; tip.style.top = py + 'px';
+    if (isBill) { tip.innerHTML = '<b>ESPECTACULAR</b><br>Pulsa <b>A</b> para ver las postales'; return; }
+    const coming = !L.pages.length;
+    tip.innerHTML = `<b>NIVEL ${L.n} · ${L.name}</b><br>${coming
+      ? '<span class="lock">PRÓXIMAMENTE</span>'
+      : (L.pages.length + ' páginas' + (L.read ? ' · ✔ leído' : ''))}`;
+  }
 
-  // --- sonido ---
-  $id('btnSound').onclick = () => { const on = MexAudio.toggle(); $id('btnSound').textContent = on ? '🔊' : '🔇'; };
+  function banner(L, txt) {
+    $id('bnL').textContent = 'NIVEL ' + L.n; $id('bnB').textContent = txt || L.name;
+    const b = $id('banner'); b.classList.add('show'); setTimeout(() => b.classList.remove('show'), 1600);
+  }
 
-  // --- tienda ---
+  /* ---------- cinemática (idéntica a la página anterior) ---------- */
+  function startCinematic(L) {
+    if (!L.pages.length) { MexAudio.sfxDenied(); banner(L, 'PRÓXIMAMENTE'); toast('Próximamente…'); return; }
+    const c = $id('cinema'); c.classList.remove('hidden');
+    const title = $id('cinemaTitle');
+    title.textContent = L.name.toUpperCase();
+    setTimeout(() => title.classList.add('show'), 300);
+    MexAudio.sfxEnter();
+    MexWorld.cinematicTo(MexWorld.nodeX(L.n) - 4, () => setTimeout(() => {
+      title.classList.remove('show');
+      setTimeout(() => { c.classList.add('hidden'); banner(L); openReader({
+        title: 'NIVEL ' + L.n + ' · ' + L.name, pages: L.pages, level: L
+      }); }, 500);
+    }, 700));
+  }
+
+  /* ---------- postales del espectacular (misma cinemática, mismo visor) ---------- */
+  function startPostales(b) {
+    const c = $id('cinema'); c.classList.remove('hidden');
+    const title = $id('cinemaTitle');
+    title.textContent = 'POSTALES';
+    setTimeout(() => title.classList.add('show'), 300);
+    MexAudio.sfxEnter();
+    MexWorld.cinematicTo(b.x + (b.w || 74) / 2, () => setTimeout(() => {
+      title.classList.remove('show');
+      setTimeout(() => { c.classList.add('hidden'); openReader({
+        title: '★ POSTALES · HÉROES ★', pages: POSTALES.slice(), level: null
+      }); }, 500);
+    }, 700));
+  }
+
+  /* ============================================================
+     VISUALIZADOR — el mismo de la página anterior:
+     zoom con etiqueta, contador inferior, barra de progreso,
+     lectura por tandas, virtualización y navegación por scroll.
+     ============================================================ */
+  let current = null, zoom = 1, tracking = false, maxSeen = 0;
+  const POR_TANDA = 10;
+  let tanda = 0, obs = null;
+  const MARGEN = '250% 0px';
+
+  function openReader(doc) {
+    current = doc; zoom = 1; tracking = false; maxSeen = 0;
+    MexWorld.pause(true);
+    $id('reader').classList.remove('hidden');
+    $id('readerStage').scrollTop = 0;
+    $id('readerTitle').textContent = `${doc.title} · ${doc.pages.length} ${doc.pages.length === 1 ? 'PÁGINA' : 'PÁGINAS'}`;
+    MexAudio.music('reader');
+    renderTanda(0, false);
+  }
+  function totalTandas() { return current ? Math.max(1, Math.ceil(current.pages.length / POR_TANDA)) : 1; }
+
+  function renderTanda(t, sfx = true) {
+    if (!current) return;
+    const tt = totalTandas();
+    tanda = Math.max(0, Math.min(t, tt - 1));
+    tracking = false;
+
+    const ini = tanda * POR_TANDA;
+    const fin = Math.min(ini + POR_TANDA, current.pages.length);
+
+    if (obs) { obs.disconnect(); obs = null; }
+    const pages = $id('pages');
+    document.querySelectorAll('.page').forEach(desmontar);
+    pages.innerHTML = '';
+
+    const frag = document.createDocumentFragment();
+    for (let i = ini; i < fin; i++) {
+      const d = document.createElement('div');
+      d.className = 'page'; d.dataset.i = i; d.dataset.src = current.pages[i];
+      d.style.aspectRatio = '2 / 3';
+      d.innerHTML = `<span class="num">${i + 1} / ${current.pages.length}</span>`;
+      frag.appendChild(d);
+    }
+    if (fin < current.pages.length) {
+      const b = document.createElement('button');
+      b.className = 'pixbtn tanda-mas';
+      const quedan = Math.min(POR_TANDA, current.pages.length - fin);
+      b.textContent = `CARGAR SIGUIENTES ${quedan} ▼`;
+      b.onclick = () => renderTanda(tanda + 1);
+      frag.appendChild(b);
+    } else {
+      const finMsg = document.createElement('div');
+      finMsg.className = 'tanda-fin';
+      finMsg.textContent = current.level ? '— FIN DE LA TEMPORADA —' : '— FIN DE LAS POSTALES —';
+      frag.appendChild(finMsg);
+    }
+    pages.appendChild(frag);
+
+    applyZoom(); observePages();
+    $id('readerStage').scrollTop = 0;
+    if (sfx) MexAudio.sfxPage();
+    setTandaUI();
+    setProgressUI(ini);
+    setTimeout(() => { tracking = true; }, 700);
+  }
+
+  function setTandaUI() {
+    const tt = totalTandas();
+    $id('prevPage').disabled = tanda <= 0;
+    $id('nextPage').disabled = tanda >= tt - 1;
+  }
+  function fail(d, im, src, why) {
+    d.classList.add('loaded'); if (im) im.remove();
+    d.insertAdjacentHTML('afterbegin', `<div class="err">NO SE PUDO CARGAR<br>${src}<br>(${why})</div>`);
+  }
+  function closeReader() {
+    $id('reader').classList.add('hidden');
+    if (obs) { obs.disconnect(); obs = null; }
+    document.querySelectorAll('.page').forEach(desmontar);
+    $id('pages').innerHTML = '';
+    $id('readerStage').onscroll = null;
+    MexWorld.pause(false); MexWorld.resetZoom();
+    MexAudio.music('map'); current = null;
+  }
+
+  function montar(d) {
+    if (d.dataset.montada === '1') return;
+    d.dataset.montada = '1';
+    const src = d.dataset.src;
+    const im = new Image();
+    im.alt = 'Página ' + (+d.dataset.i + 1);
+    im.decoding = 'async';
+    im.onload = () => {
+      d.classList.add('loaded');
+      if (!im.naturalWidth) return fail(d, im, src, 'imagen vacía');
+      d.style.aspectRatio = im.naturalWidth + ' / ' + im.naturalHeight;
+    };
+    im.onerror = () => fail(d, im, src, 'archivo no encontrado');
+    im.src = src;
+    d.insertBefore(im, d.firstChild);
+  }
+  function desmontar(d) {
+    if (d.dataset.montada !== '1') return;
+    d.dataset.montada = '0';
+    const err = d.querySelector('.err');
+    if (err) err.remove();
+    d.classList.remove('loaded');
+    const im = d.querySelector('img');
+    if (!im) return;
+    im.onload = im.onerror = null;
+    im.removeAttribute('src');
+    im.remove();
+  }
+  function observePages() {
+    if (obs) obs.disconnect();
+    obs = new IntersectionObserver(entradas => {
+      entradas.forEach(e => {
+        e.target.classList.toggle('in', e.isIntersecting);
+        if (e.isIntersecting) montar(e.target); else desmontar(e.target);
+      });
+    }, { root: $id('readerStage'), rootMargin: MARGEN });
+    document.querySelectorAll('.page').forEach(p => obs.observe(p));
+
+    const stage = $id('readerStage');
+    let pendiente = false;
+    stage.onscroll = () => {
+      if (pendiente) return;
+      pendiente = true;
+      requestAnimationFrame(() => {
+        pendiente = false;
+        if (tracking) updateProgress(currentPageIndex());
+      });
+    };
+  }
+  function setProgressUI(i) {
+    if (!current) return;
+    const pct = Math.round((i + 1) / current.pages.length * 100);
+    $id('progressFill').style.width = pct + '%';
+    $id('pageLabel').textContent = `${i + 1} / ${current.pages.length}`;
+    $id('pctLabel').textContent = pct + '%';
+  }
+  function updateProgress(i) {
+    if (!current || !tracking) return;
+    setProgressUI(i);
+    maxSeen = Math.max(maxSeen, i);
+    if (maxSeen + 1 >= current.pages.length) marcarLeido();
+  }
+  function currentPageIndex() {
+    const stage = $id('readerStage').getBoundingClientRect();
+    let best = 0, bd = 1e9;
+    document.querySelectorAll('.page.in').forEach(p => {
+      const d = Math.abs(p.getBoundingClientRect().top - stage.top - 20);
+      if (d < bd) { bd = d; best = +p.dataset.i; }
+    });
+    return best;
+  }
+  function applyZoom() {
+    $id('pages').style.setProperty('--ancho', (880 * zoom) + 'px');
+    $id('zoomLabel').textContent = Math.round(zoom * 100) + '%';
+  }
+  function marcarLeido() {
+    const L = current && current.level;
+    if (!L || L.read) return;
+    L.read = true; readSet[L.n] = 1;
+    try { localStorage.setItem(READ_KEY, JSON.stringify(readSet)); } catch (e) {}
+    updProgreso(); MexAudio.sfxUnlock();
+  }
+
+  $id('readerBack').onclick = () => { closeReader(); MexAudio.sfxSelect(); };
+  $id('prevPage').onclick = () => { if (current) renderTanda(tanda - 1); };
+  $id('nextPage').onclick = () => { if (current) renderTanda(tanda + 1); };
+  $id('zoomIn').onclick  = () => { zoom = Math.min(2.5, zoom + .15); applyZoom(); };
+  $id('zoomOut').onclick = () => { zoom = Math.max(.5, zoom - .15); applyZoom(); };
+
+  /* ---------- tienda ---------- */
   const shopEl = $id('shop');
   let shopLoaded = false;
   async function loadShop() {
@@ -878,69 +1803,43 @@ const MexWorld = (() => {
         (it.tag ? `<div class="tag">${it.tag}</div>` : '') +
         `<div class="label">${locked ? 'Próximamente' : (it.name || 'Artículo')}` +
         `${!locked && it.price ? `<span class="price">${it.price}</span>` : ''}</div>`;
-      d.onclick = () => { MexAudio.sfxCoin(); stoast(locked ? 'Próximamente…' : (it.name || 'Artículo') + (it.price ? ' · ' + it.price : '')); };
+      d.onclick = () => { MexAudio.sfxCoin(); toast(locked ? 'Próximamente…' : (it.name || 'Artículo') + (it.price ? ' · ' + it.price : '')); };
       g.appendChild(d);
     });
   }
-  function stoast(m) { const t = $id('stoast'); t.textContent = m; t.style.display = 'block'; clearTimeout(t._x); t._x = setTimeout(() => t.style.display = 'none', 2000); }
-  function openShop() { loadShop(); shopEl.classList.add('on'); MexAudio.music('shop'); }
-  function closeShop() { shopEl.classList.remove('on'); MexAudio.music('map'); }
+  function openShop() { loadShop(); shopEl.classList.add('on'); MexWorld.pause(true); MexAudio.music('shop'); }
+  function closeShop() { shopEl.classList.remove('on'); MexWorld.pause(false); MexAudio.music('map'); }
   $id('btnShop').onclick = openShop;
-  $id('shopBack').onclick = closeShop;
+  $id('shopBack').onclick = () => { closeShop(); MexAudio.sfxSelect(); };
   $id('shopClose').onclick = closeShop;
 
-  const tip = $id('tooltip');
-  function showTip(L, px, py) {
-    if (!L) { tip.style.display = 'none'; return; }
-    const coming = !L.pages.length;
-    tip.innerHTML = `<b>NIVEL ${L.n} · ${L.name}</b><br>${coming ? '<span class="lock">PRÓXIMAMENTE</span>' : (L.read ? '✔ ya leído' : 'toca para leer el cómic')}`;
-    tip.style.display = 'block'; tip.style.left = px + 'px'; tip.style.top = py + 'px';
-  }
-
-  function banner(L, txt) {
-    $id('bnL').textContent = 'NIVEL ' + L.n; $id('bnB').textContent = txt || L.name;
-    const b = $id('banner'); b.classList.add('show'); setTimeout(() => b.classList.remove('show'), 1600);
-  }
-
-  // --- visor de cómic ---
-  let comicPages = [], cIdx = 0, curLevel = null;
-  function enterLevel(L) {
-    if (!L.pages.length) { banner(L, 'PRÓXIMAMENTE'); return; }
-    curLevel = L; banner(L);
-    setTimeout(() => openComic(L.pages), 650);
-  }
-  function openComic(pages) { comicPages = pages.slice(); cIdx = 0; renderComic(); $id('comic').classList.add('on'); MexAudio.music('reader'); }
-  function renderComic() {
-    const img = $id('comicImg'); img.src = comicPages[cIdx];
-    $id('cPage').textContent = (cIdx + 1) + '/' + comicPages.length;
-  }
-  function marcarLeido() {
-    if (curLevel && !curLevel.read) { curLevel.read = true; readSet[curLevel.n] = 1; localStorage.setItem(READ_KEY, JSON.stringify(readSet)); updProgreso(); }
-  }
-  $id('cPrev').onclick = () => { if (cIdx > 0) { cIdx--; renderComic(); MexAudio.sfxPage(); } };
-  $id('cNext').onclick = () => { if (cIdx < comicPages.length - 1) { cIdx++; renderComic(); MexAudio.sfxPage(); } else { marcarLeido(); closeComic(); } };
-  $id('cClose').onclick = () => { marcarLeido(); closeComic(); };
-  function closeComic() { $id('comic').classList.remove('on'); MexAudio.music('map'); }
-
-  // --- controles táctiles ---
-  ['padL', 'padR'].forEach(id => {
+  /* ---------- controles táctiles ---------- */
+  const bind = (id, key) => {
     const el = $id(id);
-    ['pointerdown'].forEach(ev => el.addEventListener(ev, e => { e.preventDefault(); MexWorld.setKey(id, true); }));
-    ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => el.addEventListener(ev, () => MexWorld.setKey(id, false)));
-  });
-  $id('padA').addEventListener('pointerdown', e => {
-    e.preventDefault();
-    const h = MexWorld.hero, n = LEVELS.find(L => Math.abs(MexWorld.nodeX(L.n) - h.x) < 40);
-    if (n) enterLevel(n);
+    const on  = e => { e.preventDefault(); MexWorld.setKey(key, true); };
+    const off = e => { e.preventDefault(); MexWorld.setKey(key, false); };
+    ['touchstart', 'mousedown'].forEach(ev => el.addEventListener(ev, on));
+    ['touchend', 'mouseup', 'mouseleave'].forEach(ev => el.addEventListener(ev, off));
+  };
+  bind('padL', 'padL'); bind('padR', 'padR');
+  $id('padA').onclick = () => MexWorld.tryEnterNearest();
+
+  /* ---------- teclado global ---------- */
+  window.addEventListener('keydown', e => {
+    if (!$id('reader').classList.contains('hidden')) {
+      if (e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); $id('nextPage').click(); }
+      if (e.key === 'ArrowLeft'  || e.key === 'PageUp')   { e.preventDefault(); $id('prevPage').click(); }
+      if (e.key === 'Escape') closeReader();
+    } else if (shopEl.classList.contains('on') && e.key === 'Escape') closeShop();
   });
 })();
 </script>
 
-<!-- ============ CONTADOR DE VISITAS (ojito, compartido con Mundo Simz) ============ -->
+<!-- ============ CONTADOR DE VISITAS (ojito) ============ -->
 <script>
 (function () {
   var NS = 'mexacartoon-rios', KEY = 'total';
-  var BASE = 300;   // arranque base (respeta las visitas que ya traía la página). El total real se SUMA a esto.
+  var BASE = 300;   // arranque base (respeta las visitas que ya traía la página).
   var HIT_URL = 'https://abacus.jasoncameron.dev/hit/' + NS + '/' + KEY;
   var GET_URL = 'https://abacus.jasoncameron.dev/get/' + NS + '/' + KEY;
   var numEl = document.getElementById('visNum'), eyeEl = document.getElementById('visEye');
