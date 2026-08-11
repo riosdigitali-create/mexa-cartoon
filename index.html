@@ -1838,21 +1838,34 @@ const MexWorld = (() => {
 <!-- ============ CONTADOR DE VISITAS (ojito) ============ -->
 <script>
 (function () {
+  /* Total de público que ha tenido el sitio, y contando.
+     El número real lo lleva el servidor en /api/visitas (función del edge +
+     base D1): un visitante por día, sin recargas ni bots, y solo sube. Si ese
+     endpoint no está, se cae a Abacus y luego a localStorage, así que el
+     letrero nunca se ve roto. */
+  var API = '/api/visitas';
   var NS = 'mexacartoon-rios', KEY = 'total';
-  var BASE = 349;   // arranque base (respeta las visitas que ya traía la página); el conteo real se suma a esto.
+  var BASE = 349;   // arranque de los respaldos (el total real vive en D1, ver VISITAS_BASE)
   var HIT_URL = 'https://abacus.jasoncameron.dev/hit/' + NS + '/' + KEY;
   var GET_URL = 'https://abacus.jasoncameron.dev/get/' + NS + '/' + KEY;
   var numEl = document.getElementById('visNum'), eyeEl = document.getElementById('visEye');
   if (!numEl) return;
   function fmt(n) { return (n || 0).toLocaleString('es-MX'); }
-  function pintar(n) { numEl.textContent = fmt((n || 0) + BASE); }
+  function pintar(n) { numEl.textContent = fmt(n); }
   if (eyeEl) setInterval(function () { if (Math.random() < 0.5) { eyeEl.classList.add('blink'); setTimeout(function () { eyeEl.classList.remove('blink'); }, 140); } }, 2600);
   var LK = 'mexacartoon.visitas.fallback';
-  function localBump() { var n = (parseInt(localStorage.getItem(LK) || '0', 10) || 0); if (!sessionStorage.getItem('vis.contado')) { n++; localStorage.setItem(LK, n); sessionStorage.setItem('vis.contado', '1'); } return n; }
-  var yaContado = sessionStorage.getItem('vis.contado');
-  fetch(yaContado ? GET_URL : HIT_URL, { cache: 'no-store' })
-    .then(function (r) { return r.json(); })
-    .then(function (d) { var n = (d && (d.value != null ? d.value : d.count)); if (n == null) throw 0; sessionStorage.setItem('vis.contado', '1'); pintar(n); })
+  function localBump() { var n = (parseInt(localStorage.getItem(LK) || '0', 10) || 0); if (!sessionStorage.getItem('vis.contado')) { n++; localStorage.setItem(LK, n); sessionStorage.setItem('vis.contado', '1'); } return n + BASE; }
+  function numeroDe(d) { var n = (d && (d.value != null ? d.value : d.count)); return (n == null || isNaN(n)) ? null : Number(n); }
+  function porAbacus() {
+    var url = sessionStorage.getItem('vis.contado') ? GET_URL : HIT_URL;
+    return fetch(url, { cache: 'no-store' })
+      .then(function (r) { return r.json(); })
+      .then(function (d) { var n = numeroDe(d); if (n == null) throw 0; sessionStorage.setItem('vis.contado', '1'); pintar(n + BASE); });
+  }
+  fetch(API, { cache: 'no-store' })
+    .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+    .then(function (d) { var n = numeroDe(d); if (n == null) throw 0; pintar(n); })
+    .catch(function () { return porAbacus(); })
     .catch(function () { pintar(localBump()); });
 })();
 </script>
